@@ -1,7 +1,7 @@
 package com.irh.transaction.controllers;
 
-import com.irh.transaction.exceptions.web.ApiException;
-import com.irh.transaction.exceptions.web.ApiResponse;
+import com.irh.transaction.util.exceptions.ApiException;
+import com.irh.transaction.util.code.ApiResponse;
 import com.irh.transaction.model.account.Account;
 import com.irh.transaction.services.CoreServiceException;
 import com.irh.transaction.services.EntityExistsException;

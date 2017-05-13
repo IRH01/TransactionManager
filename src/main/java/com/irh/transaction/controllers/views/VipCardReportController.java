@@ -3,7 +3,7 @@ package com.irh.transaction.controllers.views;
 import com.irh.transaction.WebHelper;
 import com.irh.transaction.controllers.BaseController;
 
-import com.irh.transaction.exceptions.HCHCException;
+import com.irh.transaction.util.exceptions.HCHCException;
 import com.irh.transaction.model.finance.VipCardReport;
 import com.irh.transaction.dto.search.ReportSearchFilter;
 import com.irh.transaction.services.VipCardReportService;

@@ -1,6 +1,6 @@
 package com.irh.transaction.security;
 
-import com.irh.transaction.exceptions.web.ApiResponse;
+import com.irh.transaction.util.code.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;

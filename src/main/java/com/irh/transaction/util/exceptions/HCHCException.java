@@ -1,4 +1,4 @@
-package com.irh.transaction.exceptions;
+package com.irh.transaction.util.exceptions;
 
 /**
  * The top level exception.

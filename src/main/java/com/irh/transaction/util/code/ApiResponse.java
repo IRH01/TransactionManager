@@ -1,4 +1,4 @@
-package com.irh.transaction.exceptions.web;
+package com.irh.transaction.util.code;
 
 /**
  * Contains code, message and data for an web API response.
@@ -59,13 +59,13 @@ public class ApiResponse {
     private Object data;
 
     /**
-     * Creates a new instance of the {@link com.irh.transaction.exceptions.web.ApiResponse}.
+     * Creates a new instance of the {@link ApiResponse}.
      */
     public ApiResponse() {
     }
 
     /**
-     * Creates a new instance of the {@link com.irh.transaction.exceptions.web.ApiResponse} with the given code and message.
+     * Creates a new instance of the {@link ApiResponse} with the given code and message.
      *
      * @param code
      *         the code.
@@ -78,7 +78,7 @@ public class ApiResponse {
     }
 
     /**
-     * Creates a new instance of the {@link com.irh.transaction.exceptions.web.ApiResponse} with the given data.
+     * Creates a new instance of the {@link ApiResponse} with the given data.
      *
      * @param data
      *         the data.
@@ -88,7 +88,7 @@ public class ApiResponse {
     }
 
     /**
-     * Creates a new instance of the {@link com.irh.transaction.exceptions.web.ApiResponse} with the given code, message and data.
+     * Creates a new instance of the {@link ApiResponse} with the given code, message and data.
      *
      * @param code
      *         the code.

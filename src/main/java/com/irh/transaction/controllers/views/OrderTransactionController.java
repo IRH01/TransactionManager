@@ -3,7 +3,7 @@ package com.irh.transaction.controllers.views;
 import com.irh.transaction.WebHelper;
 import com.irh.transaction.controllers.BaseController;
 
-import com.irh.transaction.exceptions.HCHCException;
+import com.irh.transaction.util.exceptions.HCHCException;
 import com.irh.transaction.model.common.PayType;
 import com.irh.transaction.model.order.Order;
 import com.irh.transaction.model.order.OrderInvoiceRecord;

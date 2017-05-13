@@ -2,7 +2,7 @@ package com.irh.transaction.controllers.views;
 
 import com.irh.transaction.controllers.BaseController;
 
-import com.irh.transaction.exceptions.HCHCException;
+import com.irh.transaction.util.exceptions.HCHCException;
 import com.irh.transaction.model.product.ProductOptionGroup;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

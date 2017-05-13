@@ -1,7 +1,5 @@
-package com.irh.transaction.exceptions.web;
+package com.irh.transaction.util.exceptions;
 
-
-import com.irh.transaction.exceptions.HCHCException;
 
 /**
  * Thrown by web API implementation. It provides an optional error code, which can be accessed via {@link

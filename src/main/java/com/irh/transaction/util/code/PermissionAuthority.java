@@ -1,4 +1,4 @@
-package com.irh.transaction.exceptions.web;
+package com.irh.transaction.util.code;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -19,7 +19,7 @@ public class PermissionAuthority implements GrantedAuthority {
     private final String permissionCode;
 
     /**
-     * Creates a new instance of the {@link com.irh.transaction.exceptions.web.PermissionAuthority} class.
+     * Creates a new instance of the {@link PermissionAuthority} class.
      *
      * @param permissionCode
      *         the permission code.
