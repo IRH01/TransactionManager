@@ -4,7 +4,7 @@ package com.irh.transaction.controllers.views;
 import com.irh.transaction.WebHelper;
 import com.irh.transaction.controllers.BaseController;
 import com.irh.transaction.dto.search.ReportSearchFilter;
-import com.irh.transaction.util.exceptions.HCHCException;
+import com.irh.transaction.utils.exceptions.HCHCException;
 import com.irh.transaction.model.finance.FinancialReport;
 import com.irh.transaction.services.FinancialReportService;
 import org.springframework.beans.factory.annotation.Autowired;

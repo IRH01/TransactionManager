@@ -1,7 +1,7 @@
 package com.irh.transaction.services;
 
 
-import com.irh.transaction.util.exceptions.HCHCException;
+import com.irh.transaction.utils.exceptions.HCHCException;
 
 /**
  * The top level exception thrown by service implementations.

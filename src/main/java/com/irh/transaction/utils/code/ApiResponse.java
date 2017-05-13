@@ -1,4 +1,4 @@
-package com.irh.transaction.util.code;
+package com.irh.transaction.utils.code;
 
 /**
  * Contains code, message and data for an web API response.

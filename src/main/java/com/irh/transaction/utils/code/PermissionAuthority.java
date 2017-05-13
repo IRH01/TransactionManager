@@ -1,4 +1,4 @@
-package com.irh.transaction.util.code;
+package com.irh.transaction.utils.code;
 
 import org.springframework.security.core.GrantedAuthority;
 
