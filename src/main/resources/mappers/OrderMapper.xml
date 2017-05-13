@@ -1,0 +1,635 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.OrderMapper">
+    <resultMap id="order" type="order">
+        <result column="id" property="id"/>
+        <result column="hq_id" property="hqId"/>
+        <result column="branch_id" property="branchId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="bill" property="bill"/>
+        <result column="original_bill" property="originalBill"/>
+        <result column="price" property="price"/>
+        <result column="pay_type" property="payType"/>
+        <result column="platform" property="platform"/>
+        <result column="service_type" property="serviceType"/>
+        <result column="status" property="status"/>
+        <result column="number_of_people" property="numberOfPeople"/>
+        <result column="remark" property="remark"/>
+        <result column="original_price" property="originalPrice"/>
+        <result column="discount" property="discount"/>
+        <result column="device" property="device"/>
+        <result column="received" property="received"/>
+        <result column="change" property="change"/>
+        <result column="vip_card_id" property="vipCardId"/>
+        <collection property="paymentRecords" select="getPaymentRecords" column="id" javaType="ArrayList"/>
+    </resultMap>
+    <resultMap id="orderDetail" type="order">
+        <result column="id" property="id"/>
+        <result column="hq_id" property="hqId"/>
+        <result column="branch_id" property="branchId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="bill" property="bill"/>
+        <result column="original_bill" property="originalBill"/>
+        <result column="price" property="price"/>
+        <result column="pay_type" property="payType"/>
+        <result column="platform" property="platform"/>
+        <result column="service_type" property="serviceType"/>
+        <result column="status" property="status"/>
+        <result column="number_of_people" property="numberOfPeople"/>
+        <result column="remark" property="remark"/>
+        <result column="original_price" property="originalPrice"/>
+        <result column="discount" property="discount"/>
+        <result column="device" property="device"/>
+        <result column="received" property="received"/>
+        <result column="change" property="change"/>
+        <result column="vip_card_id" property="vipCardId"/>
+        <association property="table" resultMap="table"/>
+        <association property="handler" resultMap="handler"/>
+        <association property="signer" resultMap="signer"/>
+        <collection property="items" resultMap="orderItem" javaType="ArrayList"/>
+        <collection property="paymentRecords" resultMap="paymentRecord" javaType="ArrayList"/>
+        <collection property="invoiceRecords" resultMap="invoiceRecord" javaType="ArrayList"/>
+    </resultMap>
+
+    <resultMap id="handler" type="account">
+        <result column="a_id" property="id"/>
+        <result column="a_fullname" property="fullname"/>
+    </resultMap>
+    <resultMap id="signer" type="account">
+        <result column="s_id" property="id"/>
+        <result column="s_fullname" property="fullname"/>
+    </resultMap>
+    <resultMap id="orderItem" type="orderItem">
+        <result column="oi_id" property="id"/>
+        <result column="oi_count" property="count"/>
+        <result column="oi_price" property="price"/>
+        <result column="oi_original_price" property="originalPrice"/>
+        <result column="oi_service_type" property="serviceType"/>
+        <result column="oi_original_id" property="originalId"/>
+        <association property="product" resultMap="product"/>
+        <collection property="discounts" resultMap="discount" javaType="ArrayList"/>
+        <collection property="options" resultMap="option" javaType="ArrayList"/>
+    </resultMap>
+    <resultMap id="product" type="product">
+        <result column="p_id" property="id"/>
+        <result column="p_name" property="name"/>
+        <result column="p_inter_name" property="interName"/>
+    </resultMap>
+    <resultMap id="option" type="productOption">
+        <result column="po_id" property="id"/>
+        <result column="po_name" property="name"/>
+        <result column="po_inter_name" property="interName"/>
+    </resultMap>
+    <resultMap id="discount" type="productDiscount">
+        <result column="pd_id" property="id"/>
+        <result column="pd_name" property="name"/>
+        <result column="pd_discount_type" property="discountType"/>
+        <result column="pd_discount_value" property="discountValue"/>
+    </resultMap>
+    <resultMap id="table" type="branchTable">
+        <result column="t_id" property="id"/>
+        <result column="t_code" property="code"/>
+    </resultMap>
+    <resultMap id="paymentRecord" type="orderPaymentRecord">
+        <result column="r_pay_type" property="payType"/>
+        <result column="r_amount" property="amount"/>
+    </resultMap>
+    <resultMap id="invoiceRecord" type="orderInvoiceRecord">
+        <result column="oin_amount" property="amount"/>
+        <result column="oin_created_at" property="createdAt"/>
+        <association property="handler" resultMap="invoiceRecordHandler"/>
+    </resultMap>
+    <resultMap id="invoiceRecordHandler" type="account">
+        <result column="oinh_id" property="id"/>
+        <result column="oinh_fullname" property="fullname"/>
+    </resultMap>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" parameterType="order">
+        INSERT INTO t_order (
+        hq_id,
+        branch_id,
+        handler_id,
+        bill,
+        original_bill,
+        created_at,
+        price,
+        pay_type,
+        platform,
+        service_type,
+        status,
+        number_of_people,
+        signer_id,
+        remark,
+        original_price,
+        discount,
+        vip_card_id,
+        device,
+        received,
+        `change`,
+        table_id
+        ) VALUES (
+        #{hqId},
+        #{branchId},
+        #{handler.id},
+        #{bill},
+        #{originalBill},
+        #{createdAt},
+        #{price},
+        #{payType},
+        #{platform},
+        #{serviceType},
+        #{status},
+        #{numberOfPeople},
+        #{signer.id},
+        #{remark},
+        #{originalPrice},
+        #{discount},
+        #{vipCardId},
+        #{device},
+        #{received},
+        #{change},
+        <choose>
+            <when test="table!=null">
+                #{table.id}
+            </when>
+            <otherwise>NULL</otherwise>
+        </choose>
+        )
+    </insert>
+    <insert id="savePaymentRecord">
+        INSERT INTO t_order_payment_record (
+            order_id,
+            amount,
+            pay_type
+        ) VALUES (
+            #{orderId},
+            #{record.amount},
+            #{record.payType}
+        )
+    </insert>
+    <insert id="saveItem" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_order_item (
+            order_id,
+            product_id,
+            count,
+            price,
+            original_price,
+            original_id,
+            service_type
+        ) VALUES (
+            #{orderId},
+            #{product.id},
+            #{count},
+            #{price},
+            #{originalPrice},
+            #{originalId},
+            #{serviceType}
+        )
+    </insert>
+    <insert id="saveInvoice">
+        INSERT INTO t_order_invoice_record (order_id, amount, handler_id, created_at)
+        VALUES (#{orderId}, #{record.amount}, #{record.handler.id}, #{record.createdAt})
+    </insert>
+    <insert id="saveItemOption">
+        INSERT INTO t_order_item_option (
+            order_item_id,
+            option_id
+        ) VALUES (
+            #{itemId},
+            #{optionId}
+        )
+    </insert>
+    <insert id="saveItemDiscount">
+        INSERT INTO t_order_item_discount (order_item_id, discount_id)
+        VALUES (#{itemId}, #{discountId})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE t_order
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <select id="getPaymentRecords" resultMap="paymentRecord">
+        SELECT
+            r.pay_type AS r_pay_type,
+            r.amount   AS r_amount
+        FROM t_order_payment_record r
+        WHERE r.order_id = #{orderId}
+    </select>
+    <select id="getInvoiceRecords" resultMap="invoiceRecord">
+        SELECT oin.amount AS oin_amount
+        FROM t_order_invoice_record oin
+        WHERE oin.order_id = #{orderId}
+    </select>
+    <select id="checkByBill" resultType="int">
+        SELECT COUNT(*)
+        FROM t_order
+        WHERE bill = #{bill}
+    </select>
+    <select id="findByBillAndDate" resultMap="orderDetail">
+        SELECT
+        o.id AS id,
+        o.hq_id AS hq_id,
+        o.branch_id AS branch_id,
+        o.bill AS bill,
+        o.original_bill AS original_bill,
+        o.created_at AS created_at,
+        o.price AS price,
+        o.pay_type AS pay_type,
+        o.platform AS platform,
+        o.service_type AS service_type,
+        o.status AS status,
+        o.number_of_people AS number_of_people,
+        o.remark AS remark,
+        o.original_price AS original_price,
+        o.discount AS discount,
+        o.device AS device,
+        o.received AS received,
+        o.`change` AS `change`,
+        o.vip_card_id AS vip_card_id,
+        a.id AS a_id,
+        a.fullname AS a_fullname,
+        s.id AS s_id,
+        s.fullname AS s_fullname,
+        oi.id AS oi_id,
+        oi.original_id AS oi_original_id,
+        oi.count AS oi_count,
+        oi.price AS oi_price,
+        oi.original_price AS oi_original_price,
+        oi.service_type AS oi_service_type,
+        p.id AS p_id,
+        p.name AS p_name,
+        p.inter_name AS p_inter_name,
+        po.id AS po_id,
+        po.name AS po_name,
+        po.inter_name AS po_inter_name,
+        pd.id AS pd_id,
+        pd.name AS pd_name,
+        pd.discount_type AS pd_discount_type,
+        pd.discount_value AS pd_discount_value,
+        t.id AS t_id,
+        t.code AS t_code,
+        r.amount AS r_amount,
+        r.pay_type AS r_pay_type,
+        oin.amount AS oin_amount,
+        oin.created_at AS oin_created_at,
+        oinh.id AS oinh_id,
+        oinh.fullname AS oinh_fullname
+        FROM t_order o
+        LEFT JOIN t_account a ON o.handler_id = a.id
+        LEFT JOIN t_account s ON o.signer_id = s.id
+        LEFT JOIN t_order_item oi ON o.id = oi.order_id
+        LEFT JOIN t_order_payment_record r ON r.order_id = o.id
+        LEFT JOIN t_order_invoice_record oin ON oin.order_id = o.id
+        LEFT JOIN t_account oinh ON oinh.id = oin.handler_id
+        LEFT JOIN t_product p ON oi.product_id = p.id
+        LEFT JOIN t_order_item_option oio ON oio.order_item_id = oi.id
+        LEFT JOIN t_product_option po ON oio.option_id = po.id
+        LEFT JOIN t_order_item_discount oid ON oid.order_item_id = oi.id
+        LEFT JOIN t_product_discount pd ON pd.id = oid.discount_id
+        LEFT JOIN t_branch_table t ON t.id = o.table_id
+        WHERE o.bill LIKE CONCAT('%', ${bill}, '%')
+        <if test="date != null">
+            AND o.created_at <![CDATA[ >= ]]> #{date}
+        </if>
+    </select>
+    <select id="findOne" resultMap="orderDetail">
+        SELECT
+            o.id               AS id,
+            o.hq_id            AS hq_id,
+            o.branch_id        AS branch_id,
+            o.bill             AS bill,
+            o.original_bill    AS original_bill,
+            o.created_at       AS created_at,
+            o.price            AS price,
+            o.pay_type         AS pay_type,
+            o.platform         AS platform,
+            o.service_type     AS service_type,
+            o.status           AS status,
+            o.number_of_people AS number_of_people,
+            o.remark           AS remark,
+            o.original_price   AS original_price,
+            o.discount         AS discount,
+            o.device           AS device,
+            o.received         AS received,
+            o.`change`         AS `change`,
+            o.vip_card_id      AS vip_card_id,
+            a.id               AS a_id,
+            a.fullname         AS a_fullname,
+            s.id               AS s_id,
+            s.fullname         AS s_fullname,
+            oi.id              AS oi_id,
+            oi.original_id     AS oi_original_id,
+            oi.count           AS oi_count,
+            oi.price           AS oi_price,
+            oi.original_price  AS oi_original_price,
+            oi.service_type    AS oi_service_type,
+            p.id               AS p_id,
+            p.name             AS p_name,
+            p.inter_name       AS p_inter_name,
+            po.id              AS po_id,
+            po.name            AS po_name,
+            po.inter_name      AS po_inter_name,
+            pd.id              AS pd_id,
+            pd.name            AS pd_name,
+            pd.discount_type   AS pd_discount_type,
+            pd.discount_value  AS pd_discount_value,
+            t.id               AS t_id,
+            t.code             AS t_code,
+            r.amount           AS r_amount,
+            r.pay_type         AS r_pay_type,
+            oin.amount         AS oin_amount,
+            oin.created_at     AS oin_created_at,
+            oinh.id            AS oinh_id,
+            oinh.fullname      AS oinh_fullname
+        FROM t_order o
+            LEFT JOIN t_account a ON o.handler_id = a.id
+            LEFT JOIN t_account s ON o.signer_id = s.id
+            LEFT JOIN t_order_item oi ON o.id = oi.order_id
+            LEFT JOIN t_order_payment_record r ON r.order_id = o.id
+            LEFT JOIN t_order_invoice_record oin ON oin.order_id = o.id
+            LEFT JOIN t_account oinh ON oinh.id = oin.handler_id
+            LEFT JOIN t_product p ON oi.product_id = p.id
+            LEFT JOIN t_order_item_option oio ON oio.order_item_id = oi.id
+            LEFT JOIN t_product_option po ON oio.option_id = po.id
+            LEFT JOIN t_order_item_discount oid ON oid.order_item_id = oi.id
+            LEFT JOIN t_product_discount pd ON pd.id = oid.discount_id
+            LEFT JOIN t_branch_table t ON t.id = o.table_id
+        WHERE o.id = #{id}
+    </select>
+    <select id="search" resultType="order">
+        SELECT
+        o.id AS id,
+        o.hq_id AS hq_id,
+        o.branch_id AS branch_id,
+        o.bill AS bill,
+        o.original_bill AS original_bill,
+        o.created_at AS created_at,
+        o.price AS price,
+        o.pay_type AS pay_type,
+        o.platform AS platform,
+        o.service_type AS service_type,
+        o.status AS status,
+        o.number_of_people AS number_of_people,
+        o.remark AS remark,
+        o.original_price AS original_price,
+        o.discount AS discount,
+        o.device AS device,
+        o.received AS received,
+        o.`change` AS `change`,
+        o.vip_card_id AS vip_card_id,
+        r.amount AS coupon,
+        oin.total_invoices AS total_invoices
+        FROM t_order o
+        LEFT JOIN t_branch b ON b.id = o.branch_id
+        LEFT JOIN
+        (SELECT order_id, SUM(amount) AS total_invoices
+        FROM t_order_invoice_record GROUP BY order_id) oin ON oin.order_id = o.id
+        LEFT JOIN
+        (SELECT order_id, amount
+        FROM t_order_payment_record WHERE pay_type = 'COUPON') r ON r.order_id = o.id
+        WHERE b.hq_id = #{filter.hqId}
+        <if test="filter.groupId != null">
+            AND b.group_id = #{filter.groupId}
+        </if>
+        <if test="filter.branchId != null">
+            AND o.branch_id = #{filter.branchId}
+        </if>
+        <if test="filter.priceFrom != null">
+            AND price <![CDATA[ >= ]]> #{filter.priceFrom}
+        </if>
+        <if test="filter.priceTo != null">
+            AND price <![CDATA[ < ]]> #{filter.priceTo}
+        </if>
+        <if test="filter.createdAtFrom != null">
+            AND o.created_at <![CDATA[ >= ]]> #{filter.createdAtFrom}
+        </if>
+        <if test="filter.createdAtTo != null">
+            AND o.created_at <![CDATA[ < ]]> #{filter.createdAtTo}
+        </if>
+        <if test="filter.platform != null">
+            AND platform = #{filter.platform}
+        </if>
+        <if test="filter.payType != null">
+            AND o.pay_type = #{filter.payType}
+        </if>
+        <if test="filter.serviceType != null">
+            AND service_type = #{filter.serviceType}
+        </if>
+        <if test="filter.status != null">
+            AND status = #{filter.status}
+        </if>
+        <if test="filter.bill != null">
+            AND bill LIKE CONCAT('%','${filter.bill}','%')
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_order o
+        LEFT JOIN t_branch b ON b.id = o.branch_id
+        WHERE b.hq_id = #{filter.hqId}
+        <if test="filter.groupId != null">
+            AND b.group_id = #{filter.groupId}
+        </if>
+        <if test="filter.branchId != null">
+            AND branch_id = #{filter.branchId}
+        </if>
+        <if test="filter.priceFrom != null">
+            AND price <![CDATA[ >= ]]> #{filter.priceFrom}
+        </if>
+        <if test="filter.priceTo != null">
+            AND price <![CDATA[ < ]]> #{filter.priceTo}
+        </if>
+        <if test="filter.createdAtFrom != null">
+            AND created_at <![CDATA[ >= ]]> #{filter.createdAtFrom}
+        </if>
+        <if test="filter.createdAtTo != null">
+            AND created_at <![CDATA[ < ]]> #{filter.createdAtTo}
+        </if>
+        <if test="filter.platform != null">
+            AND platform = #{filter.platform}
+        </if>
+        <if test="filter.payType != null">
+            AND pay_type = #{filter.payType}
+        </if>
+        <if test="filter.serviceType != null">
+            AND service_type = #{filter.serviceType}
+        </if>
+        <if test="filter.status != null">
+            AND status = #{filter.status}
+        </if>
+        <if test="filter.bill != null">
+            AND bill LIKE CONCAT('%','${filter.bill}','%')
+        </if>
+    </select>
+
+    <select id="getCounter" statementType="CALLABLE" resultType="int">
+        {CALL p_get_order_counter(#{branchId})}
+    </select>
+    <select id="searchInvoiceRecords" resultMap="orderDetail">
+        SELECT
+        o.id AS id,
+        o.bill AS bill,
+        o.branch_id AS branch_id,
+        o.created_at AS o_created_at,
+        oin.amount AS oin_amount,
+        oin.created_at AS oin_created_at,
+        oinh.id AS oinh_id,
+        oinh.fullname AS oinh_fullname
+        FROM t_order_invoice_record oin
+        LEFT JOIN t_order o ON o.id = oin.order_id
+        LEFT JOIN t_account oinh ON oinh.id = oin.handler_id
+        LEFT JOIN t_branch b ON b.id = o.branch_id
+        WHERE b.hq_id = #{filter.hqId}
+        <if test="filter.groupId != null">
+            AND b.group_id = #{filter.groupId}
+        </if>
+        <if test="filter.branchId != null">
+            AND o.branch_id = #{filter.branchId}
+        </if>
+        <if test="filter.createdAtFrom != null">
+            AND oin.created_at <![CDATA[ >= ]]> #{filter.createdAtFrom}
+        </if>
+        <if test="filter.createdAtTo != null">
+            AND oin.created_at <![CDATA[ < ]]> #{filter.createdAtTo}
+        </if>
+        <if test="filter.platform != null">
+            AND platform = #{filter.platform}
+        </if>
+        <if test="filter.payType != null">
+            AND pay_type = #{filter.payType}
+        </if>
+        <if test="filter.bill != null">
+            AND bill LIKE CONCAT('%','${filter.bill}','%')
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="countInvoiceRecords" resultType="long">
+        SELECT COUNT(*)
+        FROM t_order_invoice_record oin
+        LEFT JOIN t_order o ON o.id = oin.order_id
+        LEFT JOIN t_account oinh ON oinh.id = oin.handler_id
+        LEFT JOIN t_branch b ON b.id = o.branch_id
+        WHERE b.hq_id = #{filter.hqId}
+        <if test="filter.groupId != null">
+            AND b.group_id = #{filter.groupId}
+        </if>
+        <if test="filter.branchId != null">
+            AND o.branch_id = #{filter.branchId}
+        </if>
+        <if test="filter.createdAtFrom != null">
+            AND oin.created_at <![CDATA[ >= ]]> #{filter.createdAtFrom}
+        </if>
+        <if test="filter.createdAtTo != null">
+            AND oin.created_at <![CDATA[ < ]]> #{filter.createdAtTo}
+        </if>
+        <if test="filter.platform != null">
+            AND platform = #{filter.platform}
+        </if>
+        <if test="filter.payType != null">
+            AND pay_type = #{filter.payType}
+        </if>
+        <if test="filter.bill != null">
+            AND bill LIKE CONCAT('%','${filter.bill}','%')
+        </if>
+    </select>
+    <select id="countTotalInvoiceAmount" resultType="java.math.BigDecimal">
+        SELECT SUM(oin.amount)
+        FROM t_order_invoice_record oin
+        LEFT JOIN t_order o ON o.id = oin.order_id
+        LEFT JOIN t_account oinh ON oinh.id = oin.handler_id
+        LEFT JOIN t_branch b ON b.id = o.branch_id
+        WHERE b.hq_id = #{filter.hqId}
+        <if test="filter != null">
+            <if test="filter.groupId != null">
+                AND b.group_id = #{filter.groupId}
+            </if>
+            <if test="filter.branchId != null">
+                AND o.branch_id = #{filter.branchId}
+            </if>
+            <if test="filter.createdAtFrom != null">
+                AND oin.created_at <![CDATA[ >= ]]> #{filter.createdAtFrom}
+            </if>
+            <if test="filter.createdAtTo != null">
+                AND oin.created_at <![CDATA[ < ]]> #{filter.createdAtTo}
+            </if>
+            <if test="filter.platform != null">
+                AND platform = #{filter.platform}
+            </if>
+            <if test="filter.payType != null">
+                AND pay_type = #{filter.payType}
+            </if>
+            <if test="filter.bill != null">
+                AND bill LIKE CONCAT('%','${filter.bill}','%')
+            </if>
+        </if>
+    </select>
+    <select id="findPaymentAmount" resultType="java.math.BigDecimal">
+        SELECT r.amount
+        FROM t_order_payment_record r
+            LEFT JOIN t_order o ON o.id = r.order_id AND o.pay_type = r.pay_type
+        WHERE o.bill = #{bill}
+    </select>
+    <select id="getTotal" resultType="order">
+        SELECT
+        SUM(o.price) AS price,
+        SUM(IF(o.original_price IS NULL, o.price, o.original_price)) AS original_price,
+        SUM(r.amount) AS coupon,
+        SUM(oin.amount) AS total_invoices
+        FROM t_order o
+        LEFT JOIN t_order_invoice_record oin ON oin.order_id = o.id
+        LEFT JOIN
+        (SELECT order_id, amount
+        FROM t_order_payment_record WHERE pay_type = 'COUPON') r ON r.order_id = o.id
+        LEFT JOIN t_branch b ON b.id = o.branch_id
+        WHERE b.hq_id = #{filter.hqId}
+        <if test="filter != null">
+            <if test="filter.groupId != null">
+                AND b.group_id = #{filter.groupId}
+            </if>
+            <if test="filter.branchId != null">
+                AND branch_id = #{filter.branchId}
+            </if>
+            <if test="filter.priceFrom != null">
+                AND price <![CDATA[ >= ]]> #{filter.priceFrom}
+            </if>
+            <if test="filter.priceTo != null">
+                AND price <![CDATA[ < ]]> #{filter.priceTo}
+            </if>
+            <if test="filter.createdAtFrom != null">
+                AND o.created_at <![CDATA[ >= ]]> #{filter.createdAtFrom}
+            </if>
+            <if test="filter.createdAtTo != null">
+                AND o.created_at <![CDATA[ < ]]> #{filter.createdAtTo}
+            </if>
+            <if test="filter.platform != null">
+                AND platform = #{filter.platform}
+            </if>
+            <if test="filter.payType != null">
+                AND o.pay_type = #{filter.payType}
+            </if>
+            <if test="filter.serviceType != null">
+                AND service_type = #{filter.serviceType}
+            </if>
+            <if test="filter.status != null">
+                AND status = #{filter.status}
+            </if>
+            <if test="filter.bill != null">
+                AND bill LIKE CONCAT('%','${filter.bill}','%')
+            </if>
+        </if>
+    </select>
+</mapper>

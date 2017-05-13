@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.VipCardMapper">
+    <resultMap id="vipCard" type="vipCard" autoMapping="true">
+        <id property="id" column="id"/>
+        <association property="branch" resultMap="branch" columnPrefix="b_"/>
+    </resultMap>
+    <resultMap id="vipCardTransaction" type="vipCardTransaction" autoMapping="true">
+        <id property="id" column="id"/>
+        <association property="branch" resultMap="branch" columnPrefix="b_"/>
+        <association property="handler" resultMap="handler" columnPrefix="h_"/>
+    </resultMap>
+    <resultMap id="branch" type="branch" autoMapping="true"/>
+    <resultMap id="handler" type="account" autoMapping="true"/>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_vip_card (
+            hq_id,
+            number,
+            name,
+            gender,
+            mobile,
+            password,
+            branch_id,
+            balance,
+            invoice_quota,
+            status,
+            point,
+            grade,
+            birth_date,
+            id_card_number,
+            created_at)
+        VALUES (
+            #{hqId},
+            #{number},
+            #{name},
+            #{gender},
+            #{mobile},
+            #{password},
+            #{branch.id},
+            #{balance},
+            #{invoiceQuota},
+            #{status},
+            #{point},
+            #{grade},
+            #{birthDate},
+            #{idCardNumber},
+            #{createdAt})
+    </insert>
+    <select id="saveTransaction" statementType="CALLABLE" resultType="int">
+        CALL p_save_vip_card_transaction(#{vipCardId}, #{amount}, #{branch.id}, #{bonus}, #{invoiceAmount},
+                                         #{handler.id}, #{transactionType}, #{payType}, #{point}, #{number},
+                                         #{createdAt});
+    </select>
+    <update id="update">
+        UPDATE t_vip_card
+        SET name   = #{name},
+            gender = #{gender},
+            mobile = #{mobile},
+            status = #{status},
+            birth_date = #{birthDate}
+        WHERE id = #{id}
+    </update>
+    <select id="updateStatus" statementType="CALLABLE" resultType="int">
+        CALL p_update_vip_card_status (#{id}, #{status});
+    </select>
+    <select id="findOne" resultMap="vipCard">
+        SELECT
+            c.id             AS id,
+            c.number         AS number,
+            c.name           AS name,
+            c.gender         AS gender,
+            c.mobile         AS mobile,
+            c.password       AS password,
+            c.status         AS status,
+            c.balance        AS balance,
+            c.invoice_quota  AS invoice_quota,
+            c.created_at     AS created_at,
+            c.hq_id          AS hq_id,
+            c.grade          AS grade,
+            c.point          AS point,
+            c.birth_date     AS birth_date,
+            c.id_card_number AS id_card_number,
+            b.id             AS b_id,
+            b.name           AS b_name
+        FROM t_vip_card c
+            LEFT JOIN t_branch b ON b.id = c.branch_id
+        WHERE c.id = #{id}
+    </select>
+    <select id="search" resultMap="vipCard">
+        SELECT
+        c.id AS id,
+        c.number AS number,
+        c.name AS name,
+        c.gender AS gender,
+        c.mobile AS mobile,
+        c.password AS password,
+        c.status AS status,
+        c.balance AS balance,
+        c.invoice_quota AS invoice_quota,
+        c.created_at AS created_at,
+        c.hq_id AS hq_id,
+        c.grade AS grade,
+        c.point AS point,
+        c.birth_date AS birth_date,
+        c.id_card_number AS id_card_number,
+        b.id AS b_id,
+        b.name AS b_name
+        FROM t_vip_card c
+        LEFT JOIN t_branch b ON b.id = c.branch_id
+        WHERE c.hq_id = #{filter.hqId}
+        <if test="filter.branchId != null">
+            AND c.branch_id = #{filter.branchId}
+        </if>
+        <if test="filter.info != null">
+            AND (LOWER(c.name) LIKE BINARY CONCAT('%', LOWER('${filter.info}'), '%') OR
+            c.number LIKE CONCAT('%', '${filter.info}', '%') OR
+            c.mobile LIKE CONCAT('%', '${filter.info}', '%'))
+        </if>
+        <if test="filter.status != null">
+            AND c.status = #{filter.status}
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(1) FROM t_vip_card
+        WHERE hq_id = #{filter.hqId}
+        <if test="filter.branchId != null">
+            AND branch_id = #{filter.branchId}
+        </if>
+        <if test="filter.info != null">
+            AND (LOWER(name) LIKE BINARY CONCAT('%', LOWER('${filter.info}'), '%') OR
+            number LIKE CONCAT('%', '${filter.info}', '%') OR
+            mobile LIKE CONCAT('%', '${filter.info}', '%'))
+        </if>
+        <if test="filter.status != null">
+            AND status = #{filter.status}
+        </if>
+    </select>
+    <select id="searchTransactions" resultMap="vipCardTransaction">
+        SELECT
+        t.id AS id,
+        t.amount AS amount,
+        t.balance_after AS balance_after,
+        t.balance_before AS balance_before,
+        t.bonus AS bonus,
+        t.created_at AS created_at,
+        t.invoice_amount AS invoice_amount,
+        t.point AS point,
+        t.pay_type AS pay_type,
+        t.transaction_type AS transaction_type,
+        t.number AS number,
+        b.id AS b_id,
+        b.name AS b_name,
+        h.id AS h_id,
+        h.fullname AS h_fullname
+        FROM t_vip_card_transaction t
+        LEFT JOIN t_branch b ON t.branch_id = b.id
+        LEFT JOIN t_account h ON h.id = t.handler_id
+        WHERE t.vip_card_id = #{filter.vipCardId}
+        <if test="filter.createdAtFrom != null">
+            AND t.created_at <![CDATA[ >= ]]> #{filter.createdAtFrom}
+        </if>
+        <if test="filter.createdAtFrom != null">
+            AND t.created_at <![CDATA[ <= ]]> #{filter.createdAtTo}
+        </if>
+        <if test="filter.transactionType != null">
+            AND t.transaction_type = #{filter.transactionType}
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="countTransactions" resultType="long">
+        SELECT COUNT(1) FROM t_vip_card_transaction t
+        WHERE t.vip_card_id = #{filter.vipCardId}
+        <if test="filter.createdAtFrom != null">
+            AND t.created_at <![CDATA[ >= ]]> #{filter.createdAtFrom}
+        </if>
+        <if test="filter.createdAtFrom != null">
+            AND t.created_at <![CDATA[ <= ]]> #{filter.createdAtTo}
+        </if>
+        <if test="filter.transactionType != null">
+            AND t.transaction_type = #{filter.transactionType}
+        </if>
+    </select>
+    <select id="checkByHqIdAndNumber" resultType="java.lang.Long">
+        SELECT id
+        FROM t_vip_card
+        WHERE number = #{number} AND hq_id = #{hqId}
+    </select>
+    <select id="statisticsByStatus" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM t_vip_card v
+        LEFT JOIN t_branch b ON v.branch_id = b.id
+        <where>
+            <if test="filter.hqId">
+                AND b.hq_id = #{filter.hqId}
+            </if>
+            <if test="filter.groupId">
+                AND b.group_id = #{filter.groupId}
+            </if>
+            <if test="filter.branchId">
+                AND b.id = #{filter.branchId}
+            </if>
+            <if test="status">
+                AND v.status = #{status}
+            </if>
+        </where>
+    </select>
+    <select id="findOneByNumber" resultType="vipCard">
+        SELECT * FROM t_vip_card WHERE number = #{number}
+    </select>
+</mapper>

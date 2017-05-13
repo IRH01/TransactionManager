@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.BranchShiftReportMapper">
+    <resultMap id="branchShiftReport" type="branchShiftReport" autoMapping="true">
+        <id property="id" column="id"/>
+        <association property="branch" resultMap="branch" columnPrefix="b_"/>
+        <association property="account" resultMap="account" columnPrefix="a_"/>
+    </resultMap>
+    <resultMap id="branch" type="branch" autoMapping="true"/>
+    <resultMap id="account" type="account" autoMapping="true"/>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_branch_shift_report (
+            branch_id,
+            account_id,
+            start_time,
+            end_time,
+            total_sales,
+            wechat_sales,
+            alipay_sales,
+            cash_sales,
+            unipay_sales,
+            coupons,
+            signed_bills,
+            vip_card_sales,
+            discounts,
+            cash_recharge,
+            unipay_recharge,
+            device
+        ) VALUES (
+            #{branch.id},
+            #{account.id},
+            #{startTime},
+            #{endTime},
+            #{totalSales},
+            #{wechatSales},
+            #{alipaySales},
+            #{cashSales},
+            #{unipaySales},
+            #{coupons},
+            #{signedBills},
+            #{vipCardSales},
+            #{discounts},
+            #{cashRecharge},
+            #{unipayRecharge},
+            #{device}
+        )
+    </insert>
+    <select id="search" resultMap="branchShiftReport">
+        SELECT
+        r.start_time AS start_time,
+        r.end_time AS end_time,
+        r.total_sales AS total_sales,
+        r.wechat_sales AS wechat_sales,
+        r.alipay_sales AS alipay_sales,
+        r.cash_sales AS cash_sales,
+        r.unipay_sales AS unipay_sales,
+        r.coupons AS coupons,
+        r.signed_bills AS signed_bills,
+        r.vip_card_sales AS vip_card_sales,
+        r.discounts AS discounts,
+        r.cash_recharge AS cash_recharge,
+        r.unipay_recharge AS unipay_recharge,
+        r.device AS device,
+        b.id AS b_id,
+        b.name AS b_name,
+        a.id AS a_id,
+        a.fullname AS a_fullname
+        FROM t_branch_shift_report r
+        LEFT JOIN t_branch b ON b.id = r.branch_id
+        LEFT JOIN t_account a ON a.id = r.account_id
+        WHERE r.branch_id = #{filter.branchId}
+        <if test="filter.dateFrom != null">
+            AND r.start_time <![CDATA[ >= ]]> #{filter.dateFrom}
+        </if>
+        <if test="filter.dateTo != null">
+            AND r.start_time <![CDATA[ < ]]> #{filter.dateTo}
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_branch_shift_report r
+        WHERE r.branch_id = #{filter.branchId}
+        <if test="filter.dateFrom != null">
+            AND r.start_time <![CDATA[ >= ]]> #{filter.dateFrom}
+        </if>
+        <if test="filter.dateTo != null">
+            AND r.start_time <![CDATA[ < ]]> #{filter.dateTo}
+        </if>
+    </select>
+    <select id="checkExists" resultType="java.lang.Long">
+        SELECT id FROM t_branch_shift_report
+        WHERE branch_id = #{branchId} AND device = #{device} AND start_time = #{startTime}
+    </select>
+</mapper>

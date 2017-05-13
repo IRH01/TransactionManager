@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.SalesStatisticMapper">
+    <resultMap id="branchSalesSummary" type="branchSalesSummary" autoMapping="true">
+        <association property="branch" resultMap="branch" columnPrefix="b_"/>
+    </resultMap>
+    <resultMap id="branch" type="branch" autoMapping="true"/>
+
+    <resultMap id="totalSalesDetails" type="totalSalesDetails">
+        <result column="hq_id" property="hqId"/>
+        <collection property="hourlyDetails" resultMap="hourlyTotalSalesDetailItem" javaType="ArrayList"
+                    resultSet="hourlyDetails"/>
+        <collection property="serviceTypeDetails" resultMap="totalSalesDetailItem" javaType="ArrayList"
+                    resultSet="serviceTypeDetails"/>
+        <collection property="payTypeDetails" resultMap="totalSalesDetailItem" javaType="ArrayList"
+                    resultSet="payTypeDetails"/>
+        <collection property="platformDetails" resultMap="totalSalesDetailItem" javaType="ArrayList"
+                    resultSet="platformDetails"/>
+    </resultMap>
+    <resultMap id="hourlyTotalSalesDetailItem" type="com.irh.transaction.model.statistic.HourlyTotalSalesDetailItem">
+        <result column="key" property="key" javaType="java.util.Date"/>
+        <result column="hour" property="hour"/>
+        <result column="sales" property="sales"/>
+        <result column="count" property="count"/>
+        <result column="turn_rate" property="turnRate"/>
+        <result column="average" property="average"/>
+    </resultMap>
+    <resultMap id="totalSalesDetailItem" type="com.irh.transaction.model.statistic.TotalSalesDetailItem">
+        <result column="key" property="key" javaType="java.lang.String"/>
+        <result column="sales" property="sales"/>
+        <result column="count" property="count"/>
+        <result column="turn_rate" property="turnRate"/>
+        <result column="average" property="average"/>
+    </resultMap>
+    <resultMap id="productSalesSummary" type="productSalesSummary" autoMapping="true">
+        <association property="product" resultMap="product" columnPrefix="p_"/>
+    </resultMap>
+    <resultMap id="productSalesDetails" type="productSalesDetails">
+        <result column="id" property="productId"/>
+        <collection property="serviceTypeDetails" resultMap="statDetailItem" javaType="ArrayList"
+                    resultSet="serviceTypeDetails"/>
+        <collection property="optionDetails" resultMap="statDetailItem" javaType="ArrayList"
+                    resultSet="optionDetails"/>
+        <collection property="dailySummaries" resultMap="productSalesSummary" javaType="ArrayList"
+                    resultSet="dailySummaries"/>
+    </resultMap>
+    <resultMap id="statDetailItem" type="com.irh.transaction.model.statistic.StatisticDetailItem">
+        <result column="key" property="key" javaType="java.lang.String"/>
+        <result column="sales" property="sales"/>
+    </resultMap>
+    <resultMap id="product" type="product" autoMapping="true"/>
+
+    <resultMap id="categorySalesSummary" type="categorySalesSummary" autoMapping="true">
+        <association property="category" resultMap="category" columnPrefix="c_"/>
+    </resultMap>
+    <resultMap id="category" type="category" autoMapping="true"/>
+    <resultMap id="categorySalesDetails" type="categorySalesDetails" autoMapping="true">
+        <result column="id" property="categoryId"/>
+        <collection property="serviceTypeDetails" resultMap="statDetailItem" javaType="ArrayList"
+                    resultSet="serviceTypeDetails"/>
+        <collection property="optionDetails" resultMap="statDetailItem" javaType="ArrayList"
+                    resultSet="optionDetails"/>
+        <collection property="dailySummaries" resultMap="categorySalesSummary" javaType="ArrayList"
+                    resultSet="dailySummaries"/>
+    </resultMap>
+
+    <resultMap id="productDiscountSalesSummary" type="productDiscountSalesSummary">
+        <id property="discountId" column="d_id"/>
+        <result property="discountName" column="d_name"/>
+        <result column="count" property="count"/>
+    </resultMap>
+
+    <select id="getBranchSalesSummaries" resultMap="branchSalesSummary" statementType="CALLABLE">
+        CALL p_stat_get_branch_sales_summary(#{filter.hqId}, #{filter.groupId}, #{filter.branchId}, #{filter.dateFrom}, #{filter.dateTo});
+    </select>
+    <select resultSets="hqId,hourlyDetails,serviceTypeDetails,payTypeDetails,platformDetails" id="getTotalSalesDetails"
+            resultMap="totalSalesDetails" statementType="CALLABLE">
+        CALL p_stat_get_total_sales_details(#{filter.hqId}, #{filter.groupId}, #{filter.branchId}, #{filter.dateFrom}, #{filter.dateTo});
+    </select>
+
+    <select id="getProductSalesSummaries" resultMap="productSalesSummary">
+        CALL p_stat_get_product_sales_summary(#{filter.hqId}, #{filter.groupId}, #{filter.branchId}, #{filter.dateFrom}, #{filter.dateTo}, #{categoryId});
+    </select>
+    <select resultSets="product,serviceTypeDetails,optionDetails,dailySummaries" id="getProductSalesDetails"
+            resultMap="productSalesDetails" statementType="CALLABLE">
+        CALL p_stat_get_product_sales_details(#{filter.hqId}, #{filter.groupId}, #{filter.branchId}, #{filter.dateFrom}, #{filter.dateTo}, #{productId});
+    </select>
+
+    <select id="getCategorySalesSummaries" resultMap="categorySalesSummary">
+        CALL p_stat_get_category_sales_summary(#{filter.hqId}, #{filter.groupId}, #{filter.branchId}, #{filter.dateFrom}, #{filter.dateTo});
+    </select>
+    <select id="getCategorySalesDetails"
+            resultSets="category,serviceTypeDetails,optionDetails,dailySummaries"
+            resultMap="categorySalesDetails" statementType="CALLABLE">
+        CALL p_stat_get_category_sales_details(#{filter.hqId}, #{filter.groupId}, #{filter.branchId}, #{filter.dateFrom}, #{filter.dateTo}, #{categoryId});
+    </select>
+    <select id="getDiscountSalesSummaries" resultMap="productDiscountSalesSummary" statementType="CALLABLE">
+        CALL p_stat_get_discount_summary(#{filter.hqId}, #{filter.groupId}, #{filter.branchId}, #{filter.dateFrom}, #{filter.dateTo});
+    </select>
+</mapper>

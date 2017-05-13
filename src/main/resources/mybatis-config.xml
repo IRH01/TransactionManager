@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+    <typeAliases>
+        <typeAlias type="com.irh.transaction.model.branch.Branch" alias="branch"/>
+        <typeAlias type="com.irh.transaction.model.branch.BranchGroup" alias="branchGroup"/>
+        <typeAlias type="com.irh.transaction.model.common.Headquarter" alias="headquarter"/>
+        <typeAlias type="com.irh.transaction.model.account.Permission" alias="permission"/>
+        <typeAlias type="com.irh.transaction.model.account.Role" alias="role"/>
+        <typeAlias type="com.irh.transaction.model.account.Account" alias="account"/>
+        <typeAlias type="com.irh.transaction.model.order.Order" alias="order"/>
+        <typeAlias type="com.irh.transaction.model.order.OrderInvoiceRecord" alias="orderInvoiceRecord"/>
+        <typeAlias type="com.irh.transaction.model.order.OrderItem" alias="orderItem"/>
+        <typeAlias type="com.irh.transaction.model.order.OrderPaymentRecord" alias="orderPaymentRecord"/>
+        <typeAlias type="com.irh.transaction.model.order.OrderQueueToken" alias="orderQueueToken"/>
+        <typeAlias type="com.irh.transaction.model.product.Category" alias="category"/>
+        <typeAlias type="com.irh.transaction.model.product.CategoryProduct" alias="categoryProduct"/>
+        <typeAlias type="com.irh.transaction.model.product.Product" alias="product"/>
+        <typeAlias type="com.irh.transaction.model.product.ProductOptionGroup" alias="productOptionGroup"/>
+        <typeAlias type="com.irh.transaction.model.product.ProductOption" alias="productOption"/>
+        <typeAlias type="com.irh.transaction.model.branch.BranchProductStatusRecord" alias="productStatusRecord"/>
+        <typeAlias type="com.irh.transaction.model.branch.PrintType" alias="printType"/>
+        <typeAlias type="com.irh.transaction.model.branch.BranchTable" alias="branchTable"/>
+        <typeAlias type="com.irh.transaction.model.marketing.VipCard" alias="vipCard"/>
+        <typeAlias type="com.irh.transaction.model.marketing.VipCardTransaction" alias="vipCardTransaction"/>
+        <typeAlias type="com.irh.transaction.model.marketing.ProductDiscount" alias="productDiscount"/>
+        <typeAlias type="com.irh.transaction.model.statistic.BranchSalesSummary" alias="branchSalesSummary"/>
+        <typeAlias type="com.irh.transaction.model.statistic.TotalSalesDetails" alias="totalSalesDetails"/>
+        <typeAlias type="com.irh.transaction.model.statistic.ProductSalesSummary" alias="productSalesSummary"/>
+        <typeAlias type="com.irh.transaction.model.statistic.ProductSalesDetails" alias="productSalesDetails"/>
+        <typeAlias type="com.irh.transaction.model.statistic.CategorySalesDetails" alias="categorySalesDetails"/>
+        <typeAlias type="com.irh.transaction.model.statistic.CategorySalesSummary" alias="categorySalesSummary"/>
+        <typeAlias type="com.irh.transaction.model.statistic.ProductDiscountSalesSummary" alias="productDiscountSalesSummary"/>
+        <typeAlias type="com.irh.transaction.model.transaction.WeChatTransaction" alias="weChatTransaction"/>
+        <typeAlias type="com.irh.transaction.model.transaction.AlipayTransaction" alias="alipayTransaction"/>
+        <typeAlias type="com.irh.transaction.model.finance.FinancialReport" alias="financialReport"/>
+        <typeAlias type="com.irh.transaction.model.finance.VipCardReport" alias="vipCardReport"/>
+        <typeAlias type="com.irh.transaction.model.statistic.BranchShiftReport" alias="branchShiftReport"/>
+    </typeAliases>
+    <mappers>
+        <mapper resource="mappers/AccountMapper.xml"/>
+        <mapper resource="mappers/RoleMapper.xml"/>
+        <mapper resource="mappers/PermissionMapper.xml"/>
+        <mapper resource="mappers/OrderMapper.xml"/>
+        <mapper resource="mappers/HeadquarterMapper.xml"/>
+        <mapper resource="mappers/BranchGroupMapper.xml"/>
+        <mapper resource="mappers/BranchMapper.xml"/>
+        <mapper resource="mappers/BranchProductStatusRecordMapper.xml"/>
+        <mapper resource="mappers/CategoryMapper.xml"/>
+        <mapper resource="mappers/ProductMapper.xml"/>
+        <mapper resource="mappers/PrintTypeMapper.xml"/>
+        <mapper resource="mappers/BranchTableMapper.xml"/>
+        <mapper resource="mappers/ProductOptionGroupMapper.xml"/>
+        <mapper resource="mappers/ProductDiscountMapper.xml"/>
+        <mapper resource="mappers/SalesStatisticMapper.xml"/>
+        <mapper resource="mappers/AlipayTransactionMapper.xml"/>
+        <mapper resource="mappers/WeChatTransactionMapper.xml"/>
+        <mapper resource="mappers/VipCardMapper.xml"/>
+        <mapper resource="mappers/FinancialReportMapper.xml"/>
+        <mapper resource="mappers/VipCardReportMapper.xml"/>
+        <mapper resource="mappers/BranchShiftReportMapper.xml"/>
+    </mappers>
+</configuration>

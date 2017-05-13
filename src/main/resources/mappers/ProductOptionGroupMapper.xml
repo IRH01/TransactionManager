@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.ProductOptionGroupMapper">
+    <resultMap id="optionGroup" type="productOptionGroup" autoMapping="true">
+        <id column="id" property="id"/>
+        <collection property="options" resultMap="option" columnPrefix="po_"/>
+    </resultMap>
+    <resultMap id="option" type="productOption" autoMapping="true"/>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_product_option_group (hq_id, name, enabled)
+        VALUES (#{hqId}, #{name}, #{enabled})
+    </insert>
+    <insert id="saveOption" useGeneratedKeys="true" keyProperty="option.id">
+        INSERT INTO t_product_option (name, inter_name, price, group_id, enabled)
+        VALUES (#{option.name}, #{option.interName}, #{option.price}, #{groupId}, #{option.enabled})
+    </insert>
+    <update id="update">
+        UPDATE t_product_option_group
+        SET name = #{name}, enabled = #{enabled}
+        WHERE id = #{id}
+    </update>
+    <update id="updateOption">
+        UPDATE t_product_option
+        SET name = #{name}, inter_name = #{interName}, price = #{price}, enabled = #{enabled}
+        WHERE id = #{id}
+    </update>
+    <select id="search" resultType="productOptionGroup">
+        SELECT id,hq_id,name,enabled FROM t_product_option_group
+        WHERE hq_id = #{filter.hqId}
+        <if test="filter.name != null">
+            AND LOWER(name) LIKE BINARY CONCAT('%', '${filter.name}', '%')
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_product_option_group
+        WHERE hq_id = #{filter.hqId}
+        <if test="filter.name != null">
+            AND LOWER(name) LIKE BINARY CONCAT('%', '${filter.name}', '%')
+        </if>
+    </select>
+    <select id="findOne" resultMap="optionGroup">
+        SELECT
+            pg.id         AS id,
+            pg.hq_id      AS hq_id,
+            pg.name       AS name,
+            pg.enabled    AS enabled,
+            po.id         AS po_id,
+            po.name       AS po_name,
+            po.inter_name AS po_inter_name,
+            po.price      AS po_price,
+            po.enabled    AS po_enabled
+        FROM t_product_option_group pg
+            LEFT JOIN t_product_option po ON po.group_id = pg.id
+        WHERE pg.id = #{id}
+    </select>
+</mapper>

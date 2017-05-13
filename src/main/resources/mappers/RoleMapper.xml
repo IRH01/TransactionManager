@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.RoleMapper">
+    <resultMap id="role" type="role">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="hq_id" property="hqId"/>
+        <result column="level" property="level"/>
+        <collection property="permissions" resultMap="rolePermission" javaType="ArrayList"
+                    columnPrefix="p_">
+        </collection>
+    </resultMap>
+    <resultMap id="rolePermission" type="permission" autoMapping="true"/>
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_role (
+            `name`,
+            hq_id,
+            level
+        ) VALUES (
+            #{name},
+            #{hqId},
+            #{level}
+        );
+    </insert>
+    <update id="update">
+        UPDATE t_role
+        SET `name` = #{name}, `hq_id` = #{hqId}, level = #{level}
+        WHERE `id` = #{id}
+    </update>
+    <delete id="deleteRolePermissions">
+        DELETE FROM t_role_permission
+        WHERE `role_id` = #{roleId}
+    </delete>
+    <insert id="saveRolePermission">
+        INSERT INTO t_role_permission (
+            role_id,
+            permission_id
+        ) VALUES (
+            #{roleId},
+            #{permissionId}
+        )
+    </insert>
+    <select id="checkByNameAndHqId" resultType="java.lang.Long">
+        SELECT id
+        FROM t_role
+        WHERE name = #{name} AND hq_id = #{hqId}
+    </select>
+    <select id="findOne" resultMap="role">
+        SELECT
+            r.`id`   AS id,
+            r.`name` AS name,
+            r.hq_id  AS hq_id,
+            r.level  AS level,
+            p.`id`   AS p_id,
+            p.`name` AS p_name,
+            p.code   AS p_code
+        FROM t_role r
+            LEFT JOIN t_role_permission rp ON r.`id` = rp.role_id
+            LEFT JOIN t_permission p ON rp.permission_id = p.`id`
+        WHERE r.id = #{id}
+    </select>
+    <select id="search" resultType="role">
+        SELECT id,name,level,hq_id FROM t_role r
+        WHERE r.hq_id = #{filter.hqId}
+        <if test="filter.name != null">
+            AND LOWER(r.name) LIKE BINARY CONCAT('%', LOWER('${filter.name}'), '%')
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_role r
+        WHERE r.hq_id = #{filter.hqId}
+        <if test="filter.name != null">
+            AND LOWER(r.name) LIKE BINARY CONCAT('%', LOWER('${filter.name}'), '%')
+        </if>
+    </select>
+</mapper>

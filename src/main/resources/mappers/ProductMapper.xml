@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.ProductMapper">
+    <resultMap id="product" type="product" autoMapping="true">
+        <id property="id" column="id"/>
+        <collection property="optionGroups" resultMap="optionGroup" javaType="ArrayList" columnPrefix="g_"/>
+    </resultMap>
+    <resultMap id="optionGroup" type="productOptionGroup" autoMapping="true"/>
+    <resultMap id="handler" type="account" autoMapping="true"/>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_product (hq_id, name, inter_name, img_url, price, status, description, label)
+        VALUES (#{hqId}, #{name}, #{interName}, #{imgUrl}, #{price}, #{status}, #{description}, #{label})
+    </insert>
+    <insert id="saveProductOptionGroup">
+        INSERT INTO t_product_product_option_group (product_id, group_id)
+        VALUES (#{productId}, #{groupId})
+    </insert>
+    <update id="update">
+        UPDATE t_product
+        SET
+            name        = #{name},
+            inter_name  = #{interName},
+            img_url     = #{imgUrl},
+            status      = #{status},
+            price       = #{price},
+            description = #{description},
+            label       = #{label}
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteProductOptionGroups">
+        DELETE FROM t_product_product_option_group
+        WHERE product_id = #{id}
+    </delete>
+    <select id="search" resultType="product">
+        SELECT * FROM t_product
+        WHERE hq_id = #{filter.hqId}
+        <if test="filter.name != null">
+            AND (LOWER(name) LIKE BINARY CONCAT('%', '${filter.name}', '%') OR
+            LOWER(inter_name) LIKE BINARY CONCAT('%', '${filter.name}', '%'))
+        </if>
+        <if test="filter.status != null">
+            AND status = #{filter.status}
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM t_product
+        WHERE hq_id = #{filter.hqId}
+        <if test="filter.name != null">
+            AND (LOWER(name) LIKE BINARY CONCAT('%', '${filter.name}', '%') OR
+            LOWER(inter_name) LIKE BINARY CONCAT('%', '${filter.name}', '%'))
+        </if>
+        <if test="filter.status != null">
+            AND status = #{filter.status}
+        </if>
+    </select>
+    <select id="findOne" resultMap="product">
+        SELECT
+            p.id          AS id,
+            p.name        AS name,
+            p.inter_name  AS inter_name,
+            p.price       AS price,
+            p.hq_id       AS hq_id,
+            p.img_url     AS img_url,
+            p.status      AS status,
+            p.description AS description,
+            p.label       AS label,
+            g.id          AS g_id,
+            g.name        AS g_name
+        FROM t_product p
+            LEFT JOIN t_product_product_option_group pg ON pg.product_id = p.id
+            LEFT JOIN t_product_option_group g ON g.id = pg.group_id
+        WHERE p.id = #{id}
+    </select>
+</mapper>

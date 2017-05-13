@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.ProductDiscountMapper">
+    <resultMap id="productDiscount" type="productDiscount" autoMapping="true">
+        <id column="id" property="id"/>
+        <collection property="products" resultMap="product" columnPrefix="p_"/>
+    </resultMap>
+    <resultMap id="product" type="product" autoMapping="true"/>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_product_discount (
+            hq_id,
+            name,
+            discount_type,
+            discount_value,
+            start_date,
+            end_date,
+            start_time,
+            end_time
+        )
+        VALUES (
+            #{hqId},
+            #{name},
+            #{discountType},
+            #{discountValue},
+            #{startDate},
+            #{endDate},
+            #{startTime},
+            #{endTime}
+        )
+    </insert>
+    <insert id="saveDiscountProduct">
+        INSERT INTO t_product_discount_product (discount_id, product_id)
+        VALUES (#{id}, #{productId})
+    </insert>
+    <update id="update">
+        UPDATE t_product_discount
+        SET
+            name = #{name},
+            discount_type = #{discountType},
+            discount_value = #{discountValue},
+            start_time = #{startTime},
+            end_time = #{endTime},
+            start_date = #{startDate},
+            end_date = #{endDate}
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteDiscountProducts">
+        DELETE FROM t_product_discount_product
+        WHERE discount_id = #{id}
+    </delete>
+    <select id="findOne" resultMap="productDiscount">
+        SELECT
+            pd.id             AS id,
+            pd.name           AS name,
+            pd.discount_type  AS discount_type,
+            pd.discount_value AS discount_value,
+            pd.start_time     AS start_time,
+            pd.end_time       AS end_time,
+            pd.start_date     AS start_date,
+            pd.end_date       AS end_date,
+            pd.hq_id          AS hq_id,
+            p.id              AS p_id,
+            p.name            AS p_name,
+            p.inter_name      AS p_inter_name
+        FROM t_product_discount pd
+            LEFT JOIN t_product_discount_product pdp ON pdp.discount_id = pd.id
+            LEFT JOIN t_product p ON p.id = pdp.product_id
+        WHERE pd.id = #{id}
+    </select>
+    <select id="search" resultType="productDiscount">
+        SELECT *
+        FROM t_product_discount pd
+        WHERE pd.hq_id = #{filter.hqId}
+        <if test="filter.name != null">
+            AND pd.name LIKE BINARY CONCAT('%', '${filter.name}', '%')
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM t_product_discount pd
+        WHERE pd.hq_id = #{filter.hqId}
+        <if test="filter.name != null">
+            AND pd.name LIKE BINARY CONCAT('%', '${filter.name}', '%')
+        </if>
+    </select>
+    <select id="findAllAvailable" resultMap="productDiscount">
+        SELECT
+            pd.id             AS id,
+            pd.name           AS name,
+            pd.discount_type  AS discount_type,
+            pd.discount_value AS discount_value,
+            pd.start_time     AS start_time,
+            pd.end_time       AS end_time,
+            pd.start_date     AS start_date,
+            pd.end_date       AS end_date,
+            pd.hq_id          AS hq_id,
+            p.id              AS p_id
+        FROM t_product_discount pd
+            LEFT JOIN t_product_discount_product pdp ON pdp.discount_id = pd.id
+            LEFT JOIN t_product p ON p.id = pdp.product_id
+        WHERE pd.hq_id = #{hqId} AND
+              (pd.start_date IS NULL OR (pd.start_date <![CDATA[ >= ]]> DATE(NOW()) AND
+                                         pd.start_date <![CDATA[ <= ]]> DATE(NOW()))) AND
+              (pd.start_time IS NULL OR (pd.start_time <![CDATA[ >= ]]> HOUR(NOW())) AND
+                                        pd.end_time <![CDATA[ <= ]]> HOUR(NOW()))
+    </select>
+</mapper>

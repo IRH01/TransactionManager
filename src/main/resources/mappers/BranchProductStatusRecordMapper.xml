@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.BranchProductStatusRecordMapper">
+    <resultMap id="statusRecord" type="productStatusRecord" autoMapping="true">
+        <id column="id" property="id"/>
+        <association property="product" resultMap="product" columnPrefix="p_"/>
+        <association property="branch" resultMap="branch" columnPrefix="b_"/>
+    </resultMap>
+    <resultMap id="product" type="product" autoMapping="true"/>
+    <resultMap id="branch" type="branch" autoMapping="true"/>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_branch_product_status_record (product_id, branch_id, created_at, status)
+        VALUES (#{product.id}, #{branch.id}, #{createdAt}, #{status})
+    </insert>
+    <delete id="delete">
+        DELETE FROM t_branch_product_status_record
+        WHERE id = #{id}
+    </delete>
+    <select id="search" resultMap="statusRecord">
+        SELECT
+        r.id AS id,
+        r.status AS status,
+        r.created_at AS created_at,
+        b.id AS b_id,
+        b.name AS b_name,
+        p.id AS p_id,
+        p.name AS p_name,
+        p.price AS p_price,
+        p.inter_name AS p_inter_name
+        FROM t_branch_product_status_record r
+        LEFT JOIN t_product p ON p.id = r.product_id
+        LEFT JOIN t_branch b ON b.id = r.branch_id
+        WHERE r.branch_id = #{filter.branchId}
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM t_branch_product_status_record r
+        WHERE r.branch_id = #{filter.branchId}
+    </select>
+    <select id="checkByBranchAndProduct" resultType="java.lang.Long">
+        SELECT id
+        FROM t_branch_product_status_record
+        WHERE branch_id = #{branchId} AND product_id = #{productId}
+    </select>
+    <update id="update" parameterType="productStatusRecord">
+        UPDATE t_branch_product_status_record
+        <set>
+            <if test="status!=null">
+                status = #{status},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+</mapper>

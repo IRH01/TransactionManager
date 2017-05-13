@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.CategoryMapper">
+    <resultMap id="category" type="category" autoMapping="true">
+        <id column="id" property="id"/>
+        <collection property="products" javaType="ArrayList" select="findCategoryProducts" column="id"/>
+    </resultMap>
+    <resultMap id="categoryProduct" type="categoryProduct">
+        <result column="cp_display_order" property="displayOrder"/>
+        <association property="product" resultMap="product" columnPrefix="p_"/>
+    </resultMap>
+    <resultMap id="product" type="product" autoMapping="true"/>
+    <resultMap id="categoryWithProductsOptions" type="category" autoMapping="true">
+        <id column="id" property="id"/>
+        <collection property="products" javaType="ArrayList" resultMap="categoryProductWithIngredients"/>
+    </resultMap>
+    <resultMap id="categoryProductWithIngredients" type="categoryProduct">
+        <result column="cp_display_order" property="displayOrder"/>
+        <association property="product" resultMap="productWithOptionGroups"/>
+    </resultMap>
+    <resultMap id="productWithOptionGroups" type="product">
+        <id column="p_id" property="id"/>
+        <result column="p_name" property="name"/>
+        <result column="p_inter_name" property="interName"/>
+        <result column="p_price" property="price"/>
+        <result column="p_description" property="description"/>
+        <result column="p_label" property="label"/>
+        <result column="img_url" property="imgUrl"/>
+        <association property="printType" resultMap="printType"/>
+        <collection property="optionGroups" javaType="ArrayList" resultMap="optionGroup"/>
+    </resultMap>
+    <resultMap id="optionGroup" type="productOptionGroup">
+        <id column="pg_id" property="id"/>
+        <result column="pg_name" property="name"/>
+        <collection property="options" javaType="ArrayList" select="findProductOptions" column="pg_id"/>
+    </resultMap>
+    <resultMap id="option" type="productOption" autoMapping="true"/>
+    <resultMap id="printType" type="printType">
+        <id column="t_id" property="id"/>
+        <result column="t_name" property="name"/>
+    </resultMap>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_category (name, inter_name, hq_id, platform, display_order, enabled)
+        VALUES (#{name}, #{interName}, #{hqId}, #{platform}, #{displayOrder}, #{enabled})
+    </insert>
+    <insert id="saveCategoryProduct">
+        INSERT INTO t_category_product (product_id, category_id, display_order)
+        VALUES (#{categoryProduct.product.id}, #{id}, #{categoryProduct.displayOrder})
+    </insert>
+    <update id="update">
+        UPDATE t_category
+        SET
+            name          = #{name},
+            inter_name    = #{interName},
+            platform      = #{platform},
+            enabled       = #{enabled},
+            display_order = #{displayOrder}
+        WHERE id = #{id}
+    </update>
+    <update id="updateDisplayOrder">
+        UPDATE t_category
+        SET display_order = #{displayOrder}
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteCategoryProducts">
+        DELETE FROM t_category_product
+        WHERE category_id = #{id}
+    </delete>
+
+    <select id="search" resultMap="category">
+        SELECT * FROM t_category
+        WHERE hq_id = #{filter.hqId}
+        <if test="filter.platform != null">
+            AND platform = #{filter.platform}
+        </if>
+        <if test="filter.name != null">
+            AND (name LIKE BINARY CONCAT('%', '${filter.name}', '%') OR
+            LOWER(inter_name) LIKE BINARY CONCAT('%', LOWER('${filter.name}'), '%'))
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_category
+        WHERE hq_id = #{filter.hqId}
+        <if test="filter.platform != null">
+            AND platform = #{filter.platform}
+        </if>
+        <if test="filter.name != null">
+            AND (name LIKE BINARY CONCAT('%', '${filter.name}', '%') OR
+            LOWER(inter_name) LIKE BINARY CONCAT('%', LOWER('${filter.name}'), '%'))
+        </if>
+    </select>
+    <select id="findMenu" resultMap="categoryWithProductsOptions">
+        SELECT
+        c.id AS id,
+        c.hq_id AS hq_id,
+        c.inter_name AS inter_name,
+        c.name AS name,
+        c.platform AS platform,
+        c.display_order AS display_order,
+        cp.display_order AS cp_display_order,
+        p.id AS p_id,
+        p.name AS p_name,
+        p.inter_name AS p_inter_name,
+        p.price AS p_price,
+        p.description AS p_description,
+        p.label AS p_label,
+        p.img_url AS img_url,
+        pg.id AS pg_id,
+        pg.name AS pg_name,
+        po.id AS po_id,
+        po.name AS po_name,
+        po.inter_name AS po_inter_name,
+        po.price AS po_price,
+        t.name AS t_name,
+        t.id AS t_id
+        FROM t_category c
+        LEFT JOIN t_category_product cp ON cp.category_id = c.id
+        LEFT JOIN t_product p ON p.id = cp.product_id
+        LEFT JOIN t_product_product_option_group ppg ON ppg.product_id = p.id
+        LEFT JOIN t_product_option_group pg ON pg.id = ppg.group_id
+        LEFT JOIN t_product_option po ON po.group_id = pg.id
+        LEFT JOIN t_product_print_type pt ON pt.product_id = p.id
+        LEFT JOIN t_print_type t ON t.id = pt.print_type_id
+        WHERE c.hq_id = #{hqId} AND c.platform = #{platform} AND c.enabled = TRUE
+        <if test="branchId != null">
+            AND t.branch_id = #{branchId}
+        </if>
+        ORDER BY c.display_order ASC, cp.display_order ASC
+    </select>
+    <select id="findCategoryProducts" resultMap="categoryProduct">
+        SELECT
+            p.id             AS p_id,
+            p.name           AS p_name,
+            p.inter_name     AS p_inter_name,
+            cp.display_order AS cp_display_order
+        FROM t_category_product cp
+            LEFT JOIN t_product p ON p.id = cp.product_id
+        WHERE cp.category_id = #{id}
+        ORDER BY cp.display_order ASC
+    </select>
+    <select id="findOne" resultMap="category">
+        SELECT *
+        FROM t_category
+        WHERE id = #{id}
+    </select>
+    <select id="findProductOptions" resultMap="option">
+        SELECT *
+        FROM t_product_option po
+        WHERE po.group_id = #{id} AND enabled = TRUE
+    </select>
+
+    <select id="findMenuForBranch" resultMap="categoryWithProductsOptions">
+        SELECT
+        c.id AS id,
+        c.hq_id AS hq_id,
+        c.inter_name AS inter_name,
+        c.name AS name,
+        c.platform AS platform,
+        c.display_order AS display_order,
+        cp.display_order AS cp_display_order,
+        p.id AS p_id,
+        p.name AS p_name,
+        p.inter_name AS p_inter_name,
+        p.price AS p_price,
+        p.img_url AS img_url,
+        p.description AS p_description,
+        p.label AS p_label,
+        pg.id AS pg_id,
+        pg.name AS pg_name,
+        po.id AS po_id,
+        po.name AS po_name,
+        po.inter_name AS po_inter_name,
+        po.price AS po_price,
+        t.name AS t_name,
+        t.id AS t_id
+        FROM t_category c
+        LEFT JOIN t_category_product cp ON cp.category_id = c.id
+        LEFT JOIN t_product p ON p.id = cp.product_id
+        LEFT JOIN t_product_product_option_group ppg ON ppg.product_id = p.id
+        LEFT JOIN t_product_option_group pg ON pg.id = ppg.group_id
+        LEFT JOIN t_product_option po ON po.group_id = pg.id
+        LEFT JOIN t_product_print_type pt ON pt.product_id = p.id
+        LEFT JOIN t_print_type t ON t.id = pt.print_type_id
+        LEFT JOIN t_headquarter h ON c.hq_id = h.id
+        WHERE c.hq_id = #{hqId}  AND c.enabled = TRUE
+        AND t.branch_id = #{branchId}
+        AND h.code = #{hqCode}
+        ORDER BY c.display_order ASC, cp.display_order ASC
+    </select>
+</mapper>

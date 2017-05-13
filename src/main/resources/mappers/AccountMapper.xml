@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.AccountMapper">
+    <resultMap id="account" type="account">
+        <result column="id" property="id"/>
+        <result column="credential_id" property="credentialId"/>
+        <result column="password" property="password"/>
+        <result column="mobile" property="mobile"/>
+        <result column="fullname" property="fullname"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="hq_id" property="hqId"/>
+        <result column="enabled" property="enabled"/>
+        <association property="hq" resultMap="hq" columnPrefix="h_"/>
+        <association property="role" resultMap="role"/>
+        <association property="branchGroup" resultMap="branchGroup" columnPrefix="a_"/>
+        <association property="branch" resultMap="branch" columnPrefix="b_"/>
+    </resultMap>
+    <resultMap id="hq" type="headquarter" autoMapping="true"/>
+    <resultMap id="role" type="role">
+        <result column="r_id" property="id"/>
+        <result column="r_name" property="name"/>
+        <result column="r_level" property="level"/>
+        <collection property="permissions" resultMap="rolePermission" javaType="ArrayList"
+                    columnPrefix="p_"/>
+    </resultMap>
+    <resultMap id="rolePermission" type="permission" autoMapping="true"/>
+    <resultMap id="branch" type="branch" autoMapping="true"/>
+    <resultMap id="branchGroup" type="branchGroup" autoMapping="true"/>
+    <select id="findOne" resultMap="account">
+        SELECT
+            a.id            AS id,
+            a.credential_id AS credential_id,
+            a.password      AS password,
+            a.fullname      AS fullname,
+            a.mobile        AS mobile,
+            a.hq_id         AS hq_id,
+            a.enabled       AS enabled,
+            a.created_at    AS created_at,
+            r.id            AS r_id,
+            r.name          AS r_name,
+            r.level         AS r_level,
+            b.id            AS b_id,
+            b.name          AS b_name,
+            ar.id           AS a_id,
+            ar.name         AS a_name
+        FROM t_account a
+            LEFT JOIN t_role r ON a.role_id = r.id
+            LEFT JOIN t_branch_group ar ON a.branch_group_id = ar.id
+            LEFT JOIN t_branch b ON a.branch_id = b.id
+        WHERE a.`id` = #{id}
+    </select>
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" parameterType="account">
+        INSERT INTO t_account (
+        hq_id,
+        credential_id,
+        password,
+        fullname,
+        mobile,
+        enabled,
+        role_id,
+        branch_group_id,
+        branch_id,
+        created_at
+        ) VALUES (
+        #{hqId},
+        #{credentialId},
+        #{password},
+        #{fullname},
+        #{mobile},
+        #{enabled},
+        <choose>
+            <when test="role != null">
+                #{role.id},
+            </when>
+            <otherwise>
+                NULL,
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="branchGroup != null">
+                #{branchGroup.id},
+            </when>
+            <otherwise>
+                NULL,
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="branch != null">
+                #{branch.id},
+            </when>
+            <otherwise>
+                NULL,
+            </otherwise>
+        </choose>
+        #{createdAt}
+        )
+    </insert>
+    <update id="update">
+        UPDATE t_account SET
+        <if test="password != null">
+            password = #{password},
+        </if>
+        fullname = #{fullname},
+        mobile = #{mobile},
+        enabled = #{enabled},
+        role_id = #{role.id},
+        branch_group_id =
+        <choose>
+            <when test="branchGroup != null">#{branchGroup.id},</when>
+            <otherwise>NULL,</otherwise>
+        </choose>
+        branch_id =
+        <choose>
+            <when test="branch != null">#{branch.id}</when>
+            <otherwise>NULL</otherwise>
+        </choose>
+        WHERE `id` = #{id}
+    </update>
+    <select id="findOneByCredentialIdAndHqCode" resultMap="account">
+        SELECT
+            a.id            AS id,
+            a.credential_id AS credential_id,
+            a.password      AS password,
+            a.fullname      AS fullname,
+            a.mobile        AS mobile,
+            a.hq_id         AS hq_id,
+            a.enabled       AS enabled,
+            a.created_at    AS created_at,
+            r.id            AS r_id,
+            r.name          AS r_name,
+            r.hq_id         AS r_hqId,
+            r.level         AS r_level,
+            p.id            AS p_id,
+            p.name          AS p_name,
+            p.code          AS p_code,
+            b.id            AS b_id,
+            b.name          AS b_name,
+            ar.id           AS a_id,
+            ar.name         AS a_name,
+            ar.hq_id        AS a_hqId,
+            h.name          AS h_name,
+            h.logo          AS h_logo,
+            h.code          AS h_code
+        FROM t_account a
+            LEFT JOIN t_role r ON a.role_id = r.id
+            LEFT JOIN t_role_permission rp ON r.`id` = rp.role_id
+            LEFT JOIN t_permission p ON rp.permission_id = p.`id`
+            LEFT JOIN t_branch_group ar ON a.branch_group_id = ar.id
+            LEFT JOIN t_branch b ON a.branch_id = b.id
+            LEFT JOIN t_headquarter h ON h.id = a.hq_id
+        WHERE (a.credential_id = #{credentialId} OR a.fullname = #{credentialId}) AND h.code = #{hqCode}
+    </select>
+    <select id="checkByCredentialIdAndHqId" resultType="Long">
+        SELECT id
+        FROM t_account
+        WHERE credential_id = #{credentialId} AND hq_id = #{hqId}
+    </select>
+    <select id="search" resultMap="account">
+        SELECT
+        a.id as id,
+        a.credential_id as credential_id,
+        a.password as password,
+        a.fullname as fullname,
+        a.mobile as mobile,
+        a.hq_id as hq_id,
+        a.enabled as enabled,
+        a.created_at as created_at,
+        r.id as r_id,
+        r.name as r_name,
+        b.id as b_id,
+        b.name as b_name,
+        ar.id as a_id,
+        ar.name as a_name
+        FROM t_account a
+        LEFT JOIN t_role r ON a.role_id = r.id
+        LEFT JOIN t_branch_group ar ON a.branch_group_id = ar.id
+        LEFT JOIN t_branch b ON a.branch_id = b.id
+        WHERE a.hq_id = #{filter.hqId}
+        <if test="filter.enabled != null">
+            AND a.enabled = #{filter.enabled}
+        </if>
+        <if test="filter.name != null">
+            AND (
+            a.fullname LIKE BINARY CONCAT('%','${filter.name}','%') OR
+            a.credential_id LIKE CONCAT('%','${filter.name}','%') OR
+            a.mobile LIKE CONCAT('%','${filter.name}','%')
+            )
+        </if>
+        <if test="filter.permissionCode != null">
+            AND a.role_id IN (
+            SELECT r.id FROM t_role r
+            LEFT JOIN t_role_permission rp ON rp.role_id = r.id
+            LEFT JOIN t_permission p ON p.id = rp.permission_id
+            WHERE p.code = #{filter.permissionCode}
+            )
+        </if>
+        <if test="filter.groupId != null">
+            AND a.branch_group_id = #{filter.groupId}
+        </if>
+        <if test="filter.branchId != null">
+            AND a.branch_id = #{filter.branchId}
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_account a
+        WHERE a.hq_id = #{filter.hqId}
+        <if test="filter.enabled != null">
+            AND a.enabled = #{filter.enabled}
+        </if>
+        <if test="filter.name != null">
+            AND (
+            a.fullname LIKE BINARY CONCAT('%','${filter.name}','%') OR
+            a.credential_id LIKE CONCAT('%','${filter.name}','%') OR
+            a.mobile LIKE CONCAT('%','${filter.name}','%')
+            )
+        </if>
+        <if test="filter.permissionCode != null">
+            AND a.role_id IN (
+            SELECT r.id FROM t_role r
+            LEFT JOIN t_role_permission rp ON rp.role_id = r.id
+            LEFT JOIN t_permission p ON p.id = rp.permission_id
+            WHERE p.code = #{filter.permissionCode}
+            )
+        </if>
+        <if test="filter.groupId != null">
+            AND a.branch_group_id = #{filter.groupId}
+        </if>
+        <if test="filter.branchId != null">
+            AND a.branch_id = #{filter.branchId}
+        </if>
+    </select>
+
+    <select id="findAll" resultMap="account">
+        SELECT
+            a.id            AS id,
+            a.credential_id AS credential_id,
+            a.password      AS password,
+            a.fullname      AS fullname,
+            a.mobile        AS mobile,
+            a.hq_id         AS hq_id,
+            a.enabled       AS enabled,
+            a.created_at    AS created_at,
+            r.id            AS r_id,
+            r.name          AS r_name,
+            r.level         AS r_level,
+            b.id            AS b_id,
+            b.name          AS b_name,
+            ar.id           AS a_id,
+            ar.name         AS a_name
+        FROM t_account a
+            LEFT JOIN t_role r ON a.role_id = r.id
+            LEFT JOIN t_branch_group ar ON a.branch_group_id = ar.id
+            LEFT JOIN t_branch b ON a.branch_id = b.id
+            LEFT JOIN t_headquarter h ON a.hq_id = h.id
+        WHERE b.`id` = #{branchId}
+        AND h.`id` = #{hqId}
+        AND h.`code` = #{hqCode}
+    </select>
+</mapper>

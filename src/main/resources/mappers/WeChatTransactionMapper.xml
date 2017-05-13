@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.WeChatTransactionMapper">
+    <resultMap id="weChatTransactionMap" type="weChatTransaction">
+        <result column="id" property="id"></result>
+        <result column="return_code" property="returnCode"></result>
+        <result column="return_msg" property="returnMsg"></result>
+        <result column="result_code" property="resultCode"></result>
+        <result column="err_code" property="errCode"></result>
+        <result column="err_code_des" property="errCodeDes"></result>
+        <result column="openid" property="openId"></result>
+        <result column="is_subscribe" property="isSubscribe"></result>
+        <result column="trade_type" property="tradeType"></result>
+        <result column="bank_type" property="bankType"></result>
+        <result column="total_fee" property="totalFee"></result>
+        <result column="fee_type" property="feeType"></result>
+        <result column="cash_fee" property="cashFee"></result>
+        <result column="cash_fee_type" property="cashFeeType"></result>
+        <result column="coupon_fee" property="couponFee"></result>
+        <result column="transaction_id" property="transactionId"></result>
+        <result column="out_trade_no" property="outTradeNo"></result>
+        <result column="time_end" property="timeEnd"></result>
+    </resultMap>
+
+    <insert id="save" useGeneratedKeys="true" parameterType="weChatTransaction" keyProperty="id">
+        INSERT INTO t_wx_transaction(
+        return_code,
+        return_msg,
+        result_code,
+        err_code,
+        err_code_des,
+        openid,
+        is_subscribe,
+        trade_type,
+        bank_type,
+        total_fee,
+        fee_type,
+        cash_fee,
+        cash_fee_type,
+        coupon_fee,
+        transaction_id,
+        out_trade_no,
+        time_end
+        )
+        VALUES(
+        #{returnCode},
+        #{returnMsg},
+        #{resultCode},
+        #{errCode},
+        #{errCodeDes},
+        #{openId},
+        #{isSubscribe},
+        #{tradeType},
+        #{bankType},
+        #{totalFee},
+        #{feeType},
+        #{cashFee},
+        #{cashFeeType},
+        #{couponFee},
+        #{transactionId},
+        #{outTradeNo},
+        #{timeEnd}
+        );
+    </insert>
+
+    <select id="findByOutTradeNo" resultMap="weChatTransactionMap">
+        SELECT * FROM t_wx_transaction
+        WHERE out_trade_no = #{outTradeNo}
+    </select>
+
+</mapper>

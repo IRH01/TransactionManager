@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.HeadquarterMapper">
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_headquarter (name, code, logo, enabled)
+        VALUES (#{name}, #{code}, #{logo}, #{enabled})
+    </insert>
+    <update id="update">
+        UPDATE t_headquarter
+        SET name = #{name}, logo = #{logo}, enabled = #{enabled}
+        WHERE id = #{id}
+    </update>
+    <select id="checkByCode" resultType="java.lang.Long">
+        SELECT id
+        FROM t_headquarter
+        WHERE code = #{code}
+    </select>
+    <select id="search" resultType="headquarter">
+        SELECT * FROM t_headquarter
+        <if test="filter != null">
+            <if test="filter.name != null">
+                WHERE LOWER(name) LIKE BINARY CONCAT('%', LOWER('${filter.name}'), '%')
+            </if>
+            <if test="filter.sortBy != null">
+                ORDER BY ${filter.sortBy} ${filter.sortOrder}
+            </if>
+            <if test="filter.page != null">
+                <bind name="offset" value="(filter.page-1)*filter.size"/>
+                LIMIT #{offset}, #{filter.size}
+            </if>
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_headquarter
+        <if test="filter != null">
+            <if test="filter.name != null">
+                WHERE LOWER(name) LIKE BINARY CONCAT('%', LOWER('${filter.name}'), '%')
+            </if>
+        </if>
+    </select>
+</mapper>

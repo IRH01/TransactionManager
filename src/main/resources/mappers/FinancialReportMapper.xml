@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.FinancialReportMapper">
+    <resultMap id="financialReport" type="financialReport" autoMapping="true">
+        <association property="branch" resultMap="branch" columnPrefix="b_"/>
+    </resultMap>
+    <resultMap id="branch" type="branch" autoMapping="true"/>
+
+    <insert id="create" statementType="CALLABLE">
+        CALL p_create_finance_report(#{hqId}, #{date});
+    </insert>
+    <select id="search" resultMap="financialReport">
+        SELECT
+        <choose>
+            <when test="!filter.groupByBranch">
+                *
+            </when>
+            <otherwise>
+                b.id AS b_id,
+                b.name AS b_name,
+                SUM(total_sales) AS total_sales,
+                SUM(orders) AS orders,
+                SUM(cash_sales) AS cash_sales,
+                SUM(unipay_sales) AS unipay_sales,
+                SUM(alipay_sales) AS alipay_sales,
+                SUM(wechat_sales) AS wechat_sales,
+                SUM(discounts) AS discounts,
+                SUM(coupons) AS coupons,
+                SUM(signed_bills) AS signed_bills,
+                SUM(gifts) AS gifts,
+                SUM(total_refund) AS total_refund,
+                SUM(cash_refund) AS cash_refund,
+                SUM(unipay_refund) AS unipay_refund,
+                SUM(alipay_refund) AS alipay_refund,
+                SUM(wechat_refund) AS wechat_refund,
+                SUM(total_recharge) AS total_recharge,
+                SUM(cash_recharge) AS cash_recharge,
+                SUM(unipay_recharge) AS unipay_recharge,
+                SUM(invoices) AS invoices,
+                SUM(vip_card_sales) AS vip_card_sales
+            </otherwise>
+        </choose>
+        FROM t_financial_report r
+        <if test="filter.groupByBranch">
+            LEFT JOIN t_branch b ON b.id = r.branch_id
+        </if>
+        WHERE r.hq_id = #{filter.hqId}
+        <choose>
+            <when test="filter.groupId != null">
+                AND r.group_id = #{filter.groupId}
+            </when>
+            <when test="filter.groupByBranch">
+                AND r.group_id IS NOT NULL
+            </when>
+            <otherwise>
+                AND r.group_id IS NULL
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="filter.branchId != null">
+                AND branch_id = #{filter.branchId}
+            </when>
+            <when test="filter.groupByBranch">
+                AND branch_id IS NOT NULL
+            </when>
+            <otherwise>
+                AND branch_id IS NULL
+            </otherwise>
+        </choose>
+        <if test="filter.dateFrom != null">
+            AND date <![CDATA[ >= ]]> DATE(#{filter.dateFrom})
+        </if>
+        <if test="filter.dateTo != null">
+            AND date <![CDATA[ <= ]]> DATE(#{filter.dateTo})
+        </if>
+        <choose>
+            <when test="!filter.groupByBranch">
+                <if test="filter.sortBy != null">
+                    ORDER BY ${filter.sortBy} ${filter.sortOrder}
+                </if>
+                <if test="filter.page != null">
+                    <bind name="offset" value="(filter.page-1)*filter.size"/>
+                    LIMIT #{offset}, #{filter.size}
+                </if>
+            </when>
+            <otherwise>
+                GROUP BY b.id, b.name
+            </otherwise>
+        </choose>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_financial_report
+        WHERE hq_id = #{filter.hqId}
+        <choose>
+            <when test="filter.groupId != null">
+                AND group_id = #{filter.groupId}
+            </when>
+            <otherwise>
+                AND group_id IS NULL
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="filter.branchId != null">
+                AND branch_id = #{filter.branchId}
+            </when>
+            <otherwise>
+                AND branch_id IS NULL
+            </otherwise>
+        </choose>
+        <if test="filter.dateFrom != null">
+            AND date <![CDATA[ >= ]]> DATE(#{filter.dateFrom})
+        </if>
+        <if test="filter.dateTo != null">
+            AND date <![CDATA[ <= ]]> DATE(#{filter.dateTo})
+        </if>
+    </select>
+    <select id="findOne" resultType="financialReport">
+        SELECT *
+        FROM t_financial_report
+        WHERE id = #{id}
+    </select>
+    <select id="getTotal" resultType="financialReport">
+        SELECT
+        SUM(total_sales) AS total_sales,
+        SUM(orders) AS orders,
+        SUM(cash_sales) AS cash_sales,
+        SUM(unipay_sales) AS unipay_sales,
+        SUM(alipay_sales) AS alipay_sales,
+        SUM(wechat_sales) AS wechat_sales,
+        SUM(discounts) AS discounts,
+        SUM(coupons) AS coupons,
+        SUM(signed_bills) AS signed_bills,
+        SUM(gifts) AS gifts,
+        SUM(total_refund) AS total_refund,
+        SUM(cash_refund) AS cash_refund,
+        SUM(unipay_refund) AS unipay_refund,
+        SUM(alipay_refund) AS alipay_refund,
+        SUM(wechat_refund) AS wechat_refund,
+        SUM(total_recharge) AS total_recharge,
+        SUM(cash_recharge) AS cash_recharge,
+        SUM(unipay_recharge) AS unipay_recharge,
+        SUM(invoices) AS invoices,
+        SUM(vip_card_sales) AS vip_card_sales
+        FROM t_financial_report r
+        WHERE r.hq_id = #{filter.hqId}
+        <choose>
+            <when test="filter.groupId != null">
+                AND r.group_id = #{filter.groupId}
+            </when>
+            <when test="filter.groupByBranch">
+                AND r.group_id IS NOT NULL
+            </when>
+            <otherwise>
+                AND r.group_id IS NULL
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="filter.branchId != null">
+                AND branch_id = #{filter.branchId}
+            </when>
+            <when test="filter.groupByBranch">
+                AND branch_id IS NOT NULL
+            </when>
+            <otherwise>
+                AND branch_id IS NULL
+            </otherwise>
+        </choose>
+        <if test="filter.dateFrom != null">
+            AND date <![CDATA[ >= ]]> DATE(#{filter.dateFrom})
+        </if>
+        <if test="filter.dateTo != null">
+            AND date <![CDATA[ <= ]]> DATE(#{filter.dateTo})
+        </if>
+    </select>
+</mapper>

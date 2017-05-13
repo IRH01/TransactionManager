@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.AlipayTransactionMapper">
+    <resultMap id="alipayTransactionMap" type="alipayTransaction">
+        <result column="id" property="id"></result>
+        <result column="trade_no" property="tradeNo"></result>
+        <result column="out_trade_no" property="outTradeNo"></result>
+        <result column="out_biz_no" property="outBizNo"></result>
+        <result column="notify_time" property="notifyTime"></result>
+        <result column="notify_type" property="notifyType"></result>
+        <result column="notify_id" property="notifyId"></result>
+        <result column="buyer_id" property="buyerId"></result>
+        <result column="buyer_logon_id" property="buyerLogonId"></result>
+        <result column="trade_status" property="tradeStatus"></result>
+        <result column="total_amount" property="totalAmount"></result>
+        <result column="receipt_amount" property="receiptAmount"></result>
+        <result column="invoice_amount" property="invoiceAmount"></result>
+        <result column="buyer_pay_amount" property="buyerPayAmount"></result>
+        <result column="point_amount" property="pointAmount"></result>
+        <result column="refund_fee" property="refundFee"></result>
+        <result column="send_back_fee" property="sendBackFee"></result>
+        <result column="subject" property="subject"></result>
+        <result column="body" property="body"></result>
+        <result column="gmt_create" property="gmtCreate"></result>
+        <result column="gmt_payment" property="gmtPayment"></result>
+        <result column="gmt_refund" property="gmtRefund"></result>
+        <result column="gmt_close" property="gmtClose"></result>
+        <result column="fund_bill_list" property="fundBillList"></result>
+    </resultMap>
+
+    <insert id="save" useGeneratedKeys="true" parameterType="alipayTransaction" keyProperty="id">
+        INSERT INTO t_alipay_transaction(
+        trade_no,
+        out_trade_no,
+        out_biz_no,
+        notify_time,
+        notify_type,
+        notify_id,
+        buyer_id,
+        buyer_logon_id,
+        trade_status,
+        total_amount,
+        receipt_amount,
+        invoice_amount,
+        buyer_pay_amount,
+        point_amount,
+        refund_fee,
+        send_back_fee,
+        subject,
+        body,
+        gmt_create,
+        gmt_payment,
+        gmt_refund,
+        gmt_close,
+        fund_bill_list
+        )
+        VALUES(
+        #{tradeNo},
+        #{outTradeNo},
+        #{outBizNo},
+        #{notifyTime},
+        #{notifyType},
+        #{notifyId},
+        #{buyerId},
+        #{buyerLogonId},
+        #{tradeStatus},
+        #{totalAmount},
+        #{receiptAmount},
+        #{invoiceAmount},
+        #{buyerPayAmount},
+        #{pointAmount},
+        #{refundFee},
+        #{sendBackFee},
+        #{subject},
+        #{body},
+        #{gmtCreate},
+        #{gmtPayment},
+        #{gmtRefund},
+        #{gmtClose},
+        #{fundBillList}
+        );
+    </insert>
+
+    <select id="findByOutTradeNo" resultMap="alipayTransactionMap">
+        SELECT * FROM t_alipay_transaction
+        WHERE out_trade_no = #{outTradeNo}
+    </select>
+
+</mapper>

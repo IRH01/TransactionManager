@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.BranchGroupMapper">
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" parameterType="account">
+        INSERT INTO t_branch_group (name, hq_id, enabled)
+        VALUES (#{name}, #{hqId}, #{enabled})
+    </insert>
+    <update id="update">
+        UPDATE t_branch_group
+        SET name = #{name}, enabled = #{enabled}
+        WHERE id = #{id}
+    </update>
+    <select id="search" resultType="branchGroup">
+        SELECT
+        a.id AS id,
+        a.hq_id AS hq_id,
+        a.name AS name,
+        a.enabled AS enabled
+        FROM t_branch_group a
+        WHERE a.hq_id = #{filter.hqId}
+        <if test="filter.groupId != null">
+            And a.id = #{filter.groupId}
+        </if>
+        <if test="filter.name != null">
+            AND a.name LIKE BINARY CONCAT('%', '${filter.name}', '%')
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_branch_group a
+        WHERE a.hq_id = #{filter.hqId}
+        <if test="filter.name != null">
+            AND a.name LIKE BINARY CONCAT('%', '${filter.name}', '%')
+        </if>
+    </select>
+    <select id="checkByNameAndHqId" resultType="java.lang.Long">
+        SELECT id
+        FROM t_branch_group
+        WHERE name = #{name} AND hq_id = #{hqId}
+    </select>
+    <select id="findOne" resultType="branchGroup">
+        SELECT * FROM t_branch_group WHERE id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.VipCardReportMapper">
+    <resultMap id="vipCardReport" type="vipCardReport" autoMapping="true">
+        <association property="branch" resultMap="branch"/>
+        <association property="vipCard" resultMap="vipCard"/>
+    </resultMap>
+    <resultMap id="branch" type="branch">
+        <result column="b_id" property="id"/>
+        <result column="b_name" property="name"/>
+    </resultMap>
+    <resultMap id="vipCard" type="vipCard">
+        <result column="c_id" property="id"/>
+        <result column="c_name" property="name"/>
+        <result column="c_number" property="number"/>
+        <result column="c_balance" property="balance"/>
+        <result column="c_invoice_quota" property="invoiceQuota"/>
+    </resultMap>
+
+    <select id="search" resultMap="vipCardReport">
+        <choose>
+            <when test="filter.groupByBranch">
+                CALL p_get_vip_card_branch_reports(#{filter.hqId}, #{filter.groupId}, #{filter.branchId},
+                #{filter.dateFrom}, #{filter.dateTo});
+            </when>
+            <otherwise>
+                CALL p_get_vip_card_summary_reports(#{filter.hqId}, #{filter.groupId}, #{filter.branchId},
+                #{filter.dateFrom}, #{filter.dateTo}, #{filter.page}, #{filter.size});
+            </otherwise>
+        </choose>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_vip_card c
+        LEFT JOIN t_branch b ON c.branch_id = b.id
+        WHERE c.hq_id = #{filter.hqId}
+        <if test="filter.groupId != null">
+            b.group_id = #{filter.groupId}
+        </if>
+        <if test="filter.branchId != null">
+            b.id = #{filter.branchId}
+        </if>
+    </select>
+    <select id="getTotal" resultType="vipCardReport" statementType="CALLABLE">
+        CALL p_get_vip_card_reports_total(#{filter.hqId}, #{filter.groupId}, #{filter.branchId},
+                                          #{filter.dateFrom}, #{filter.dateTo});
+    </select>
+</mapper>

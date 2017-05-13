@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.irh.transaction.dao.BranchMapper">
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_branch (
+            name,
+            hq_id,
+            number,
+            group_id,
+            phone,
+            province,
+            city,
+            district,
+            address,
+            geo,
+            enabled)
+        VALUES (
+            #{name},
+            #{hqId},
+            #{number},
+            #{groupId},
+            #{phone},
+            #{province},
+            #{city},
+            #{district},
+            #{address},
+            POINT(#{longitude}, #{latitude}),
+            #{enabled}
+            )
+    </insert>
+    <insert id="savePosCounter">
+        INSERT INTO t_pos_counter (branch_id) VALUES (#{branchId})
+    </insert>
+
+    <update id="update">
+        UPDATE t_branch
+        SET
+            name = #{name},
+            phone = #{phone},
+            province = #{province},
+            city = #{city},
+            district = #{district},
+            address = #{address},
+            geo = POINT(#{longitude}, #{latitude}),
+                    enabled = #{enabled}
+                    WHERE id = #{id}
+    </update>
+    <select id="checkByNameAndAreaId" resultType="java.lang.Long">
+        SELECT id
+        FROM t_branch
+        WHERE name = #{name} AND group_id = #{groupId}
+    </select>
+    <select id="search" resultType="branch">
+        SELECT
+        b.id AS id,
+        b.hq_id AS hq_id,
+        b.number AS number,
+        b.name AS name,
+        b.group_id AS group_id,
+        b.province AS province,
+        b.city AS city,
+        b.district AS district,
+        b.address AS address,
+        b.phone AS phone,
+        X(b.geo) AS longitude,
+        Y(b.geo) AS latitude,
+        b.enabled AS enabled
+        FROM t_branch b
+        WHERE b.hq_id = #{filter.hqId}
+        <if test="filter.groupId != null">
+            AND b.group_id = #{filter.groupId}
+        </if>
+        <if test="filter.branchId != null">
+            AND b.id = #{filter.branchId}
+        </if>
+        <if test="filter.name != null">
+            AND LOWER(b.name) LIKE BINARY CONCAT('%', LOWER('${filter.name}'), '%')
+        </if>
+        <if test="filter.province != null">
+            AND b.province = #{filter.province}
+        </if>
+        <if test="filter.city != null">
+            AND b.city = #{filter.city}
+        </if>
+        <if test="filter.address != null">
+            AND b.address LIKE BINARY CONCAT('%', '${filter.address}', '%')
+        </if>
+        <if test="filter.sortBy != null">
+            ORDER BY ${filter.sortBy} ${filter.sortOrder}
+        </if>
+        <if test="filter.page != null">
+            <bind name="offset" value="(filter.page-1)*filter.size"/>
+            LIMIT #{offset}, #{filter.size}
+        </if>
+    </select>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_branch b
+        WHERE b.hq_id = #{filter.hqId}
+        <if test="filter.groupId != null">
+            AND b.group_id = #{filter.groupId}
+        </if>
+        <if test="filter.name != null">
+            AND LOWER(b.name) LIKE BINARY CONCAT('%', LOWER('${filter.name}'), '%')
+        </if>
+        <if test="filter.province != null">
+            AND b.province = #{filter.province}
+        </if>
+        <if test="filter.city != null">
+            AND b.city = #{filter.city}
+        </if>
+        <if test="filter.address != null">
+            AND b.address LIKE BINARY CONCAT('%', '${filter.address}', '%')
+        </if>
+    </select>
+    <select id="getBranchCities" resultType="java.lang.String">
+        SELECT DISTINCT city
+        FROM t_branch
+        WHERE hq_id = #{hqId}
+    </select>
+    <select id="findOne" resultType="branch">
+        SELECT
+            b.id       AS id,
+            b.hq_id    AS hq_id,
+            b.name     AS name,
+            b.number AS number,
+            b.group_id AS group_id,
+            b.province AS province,
+            b.city     AS city,
+            b.district AS district,
+            b.address  AS address,
+            b.phone    AS phone,
+            X(b.geo)   AS longitude,
+            Y(b.geo)   AS latitude,
+            b.enabled  AS enabled
+        FROM t_branch b
+        WHERE id = #{id}
+    </select>
+    <select id="getMaxBranchNo" resultType="Integer">
+        select MAX(number) FROM t_branch
+        <where>
+            hq_id = #(hqId);
+        </where>
+    </select>
+    <select id="getPosCounter" resultType="int" statementType="CALLABLE">
+        CALL p_get_pos_counter(#{branchId});
+    </select>
+</mapper>
