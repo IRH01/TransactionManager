@@ -4,7 +4,10 @@
     <jsp:include page="../shared/head.jsp"/>
 </head>
 <body ng-controller="PrintTypeController">
-<jsp:include page="../shared/layout.jsp"/>
+<jsp:include page="../shared/layout.jsp">
+    <jsp:param name="tab" value="branch"/>
+    <jsp:param name="view" value="print-type"/>
+</jsp:include>
 <div class="model-list-box content-box" ng-cloak>
     <div class="clumn-nav clearfix">
         <h3 class="nav-title">打印类别管理</h3>

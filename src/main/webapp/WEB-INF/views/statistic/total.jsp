@@ -8,7 +8,7 @@
     <jsp:param name="tab" value="statistic"/>
     <jsp:param name="view" value="statistic-total"/>
 </jsp:include>
-<div class="content-box" ng-cloak ng-cloak>
+<div class="content-box" ng-cloak>
     <div class="clumn-nav clearfix">
         <h3 class="nav-title">营业统计</h3>
         <ul class="navList">

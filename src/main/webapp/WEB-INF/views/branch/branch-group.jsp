@@ -4,7 +4,10 @@
     <jsp:include page="../shared/head.jsp"/>
 </head>
 <body ng-controller="BranchGroupController">
-<jsp:include page="../shared/layout.jsp"/>
+<jsp:include page="../shared/layout.jsp">
+    <jsp:param name="tab" value="branch"/>
+    <jsp:param name="view" value="branch-group"/>
+</jsp:include>
 <div class="model-list-box content-box"  ng-cloak>
     <div class="clumn-nav clearfix">
         <h3 class="nav-title">店铺组管理</h3>

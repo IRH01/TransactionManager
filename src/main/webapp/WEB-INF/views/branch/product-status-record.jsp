@@ -4,7 +4,10 @@
     <jsp:include page="../shared/head.jsp"/>
 </head>
 <body ng-controller="BranchProductStatusRecordController">
-<jsp:include page="../shared/layout.jsp"/>
+<jsp:include page="../shared/layout.jsp">
+    <jsp:param name="tab" value="branch"/>
+    <jsp:param name="view" value="product-status-record"/>
+</jsp:include>
 <div class="model-list-box content-box" ng-cloak>
     <div class="clumn-nav clearfix">
         <h3 class="nav-title">分店停售菜单</h3>

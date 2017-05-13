@@ -3,9 +3,12 @@
 <head>
     <jsp:include page="../shared/head.jsp"/>
 </head>
-<body ng-controller="BranchTableController" ng-cloak>
-<jsp:include page="../shared/layout.jsp"/>
-<div class="model-list-box content-box">
+<body ng-controller="BranchTableController">
+<jsp:include page="../shared/layout.jsp">
+    <jsp:param name="tab" value="branch"/>
+    <jsp:param name="view" value="table"/>
+</jsp:include>
+<div class="model-list-box content-box" ng-cloak>
     <div class="clumn-nav clearfix">
         <h3 class="nav-title">桌位管理</h3>
     </div>
