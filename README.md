@@ -19,9 +19,9 @@
              * [5.test/resources/下选择合适的数据初始化脚本运行。默认选择data.sql,用户登录用户名/密码/品牌码 1/1/1](#cc1)    
              * [6.修改代码中相应的数据库地址：com/irh/transaction/config/AppConfig.java:35，这里修改web项目所连接的数据库配置。](#cc1)    
              * [7.将war包放入tomcat目录下运行。](#cc1)    
-+ **项目测试启动要点：** 
-             * [1.修改测试数据库链接com/irh/transcation/services/TestConfig.java:31。](#cc1)
-             * [2.启动相应的测试类，每次测试都会将数据库进行清理](#cc1)
++ **项目测试启动要点：**     
+             * [1.修改测试数据库链接com/irh/transcation/services/TestConfig.java:31。](#cc1)  
+             * [2.启动相应的测试类，每次测试都会将数据库进行清理](#cc1)    
              
 ## 一、项目结构
 
