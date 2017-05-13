@@ -16,7 +16,7 @@
              * [2.下载tomcat容器，maven管理工具。](#cc1)  
              * [3.安装mysql数据库](#cc1) 
              * [4.将test/resources/ddl.sql数据库表结构在mysql客户端进行运行。](#cc1)    
-             * [5.test/resources/下选择合适的数据初始化脚本运行。默认选择data.sql,用户登录用户名/密码/品牌码 1/1/1](#cc1)    
+             * [5.test/resources/下选择合适的数据初始化脚本运行。默认选择数据文件data.sql,存储过程文件sp.sql,,用户登录用户名/密码/品牌码 1/1/1](#cc1)    
              * [6.修改代码中相应的数据库地址：com/irh/transaction/config/AppConfig.java:35，这里修改web项目所连接的数据库配置。](#cc1)    
              * [7.将war包放入tomcat目录下运行。](#cc1)    
 + **项目测试启动要点：**     
