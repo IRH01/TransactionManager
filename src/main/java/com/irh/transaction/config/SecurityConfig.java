@@ -34,7 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         http.httpBasic().authenticationEntryPoint(new WebAuthenticationEntryPoint("/login"));
         http.exceptionHandling().accessDeniedHandler(new WebAccessDeniedHandler("/error.html"));
         http.authorizeRequests()
-                .antMatchers("/login", "/api/account/login","/api/account/logout").permitAll()
+                .antMatchers("/login", "/api/account/login", "/api/account/logout").permitAll()
                 .antMatchers("/account/account/**", "/api/account/account/**").hasAuthority("account")
                 .antMatchers("/account/role/**", "/api/account/role/**").hasAuthority("permission")
                 .antMatchers("/role/**", "/api/role/**").hasAuthority("permission")
