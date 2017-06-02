@@ -32,7 +32,7 @@ public class AppConfig{
         ds.setUsername("root");
         ds.setPassword("root");
         ds.setMaxActive(20);
-        ds.setUrl("jdbc:mysql://localhost:3306/hchctest?useUnicode=true&characterEncoding=UTF-8");
+        ds.setUrl("jdbc:mysql://localhost:3306/hchcmin?useUnicode=true&characterEncoding=UTF-8");
         return ds;
     }
 

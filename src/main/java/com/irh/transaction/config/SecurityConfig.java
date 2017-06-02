@@ -16,13 +16,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  */
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) throws Exception{
         web.ignoring().antMatchers("/static/**", "error.html");
     }
 
@@ -30,10 +30,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * {@inheritDoc}
      */
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(HttpSecurity http) throws Exception{
         http.httpBasic().authenticationEntryPoint(new WebAuthenticationEntryPoint("/login"));
         http.exceptionHandling().accessDeniedHandler(new WebAccessDeniedHandler("/error.html"));
-        http.authorizeRequests().antMatchers("/login", "/api/account/login").permitAll()
+        http.authorizeRequests()
+                .antMatchers("/login", "/api/account/login","/api/account/logout").permitAll()
                 .antMatchers("/account/account/**", "/api/account/account/**").hasAuthority("account")
                 .antMatchers("/account/role/**", "/api/account/role/**").hasAuthority("permission")
                 .antMatchers("/role/**", "/api/role/**").hasAuthority("permission")
@@ -41,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/product/**", "/api/product/**").hasAuthority("product")
                 .antMatchers("/branch/**", "/api/branch/**").hasAuthority("branch")
                 .antMatchers("/marketing/**", "/api/marketing/**").hasAuthority("marketing")
-                .antMatchers("/statistic/**","/api/statistic/**").hasAuthority("data")
+                .antMatchers("/statistic/**", "/api/statistic/**").hasAuthority("data")
                 .antMatchers("/finance/**", "/api/finance/**").hasAuthority("finance")
                 .anyRequest().authenticated();
     }

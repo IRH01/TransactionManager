@@ -40,6 +40,7 @@ INSERT INTO t_permission (id, name, code, category) VALUES (6, '店铺管理', '
 INSERT INTO t_permission (id, name, code, category) VALUES (7, '人员管理', 'account', '操作后台');
 INSERT INTO t_permission (id, name, code, category) VALUES (8, '权限管理', 'permission', '操作后台');
 INSERT INTO t_permission (id, name, code, category) VALUES (9, '打折', 'discount', 'POS权限');
+INSERT INTO t_permission (id, name, code, category) VALUES (10, '其他', 'other', '其他权限');
 INSERT INTO t_permission (id, name, code, category) VALUES (11, '订单管理', 'order', 'POS权限');
 INSERT INTO t_permission (id, name, code, category) VALUES (12, '签单', 'sign', '其他权限');
 

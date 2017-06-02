@@ -40,6 +40,7 @@ var app = angular.module('app', [], function () {
      * The global logout scope function.
      */
     $rootScope.logout = function () {
+        debugger;
         if (confirm('是否确认退出登录?')) {
             $http.post('/api/account/logout').success(function () {
                 location.href = '/login';

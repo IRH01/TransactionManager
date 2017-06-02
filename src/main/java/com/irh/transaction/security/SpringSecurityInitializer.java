@@ -9,4 +9,5 @@ import org.springframework.security.web.context.AbstractSecurityWebApplicationIn
  * @version 1.0
  */
 public class SpringSecurityInitializer extends AbstractSecurityWebApplicationInitializer{
+
 }
