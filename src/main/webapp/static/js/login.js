@@ -4,6 +4,7 @@ app.controller('LoginController', ['HelperService', '$http', '$scope',
         $scope.model = {};
 
         $scope.login = function () {
+            debugger;
             $http.post('/api/account/login', {
                 credentialId: $scope.model.credentialId,
                 password: md5($scope.model.password),
