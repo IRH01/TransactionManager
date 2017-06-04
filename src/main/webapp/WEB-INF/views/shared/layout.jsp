@@ -29,7 +29,7 @@
         <sec:authorize access="hasAuthority('data')">
             <li class="nav-li${param.tab=="statistic"?" select":""}">
                 <a href="javascript:;" class="nav-link"><span>实时数据</span><span class="nav-icon"></span></a>
-                <ul class="subnav-ul"${param.tab=="statistic"?"style='display:block;'":""}>
+                <ul class="subnav-ul" ${param.tab=="statistic"?"style='display:block;'":""}>
                     <li><a href="/statistic/total" class="${param.view=="statistic-total"?"active":""}">营业数据</a></li>
                     <li><a href="/statistic/branch" class="${param.view=="statistic-branch"?"active":""}">店铺排行</a></li>
                     <li><a href="/statistic/menu" class="${param.view=="statistic-menu"?"active":""}">菜单统计</a></li>
