@@ -107,11 +107,11 @@
 </div>
 
 <!--成功提示-->
-<div class="success-tips" style="opacity:0;">
+<div class="success-tips" style="opacity:0;display: none;">
     <i class="success-icon"></i><span>{{tipMessage}}</span>
 </div>
 <!--错误提示-->
-<div class="fail-tips" style="opacity:0;">
+<div class="fail-tips" style="opacity:0;display: none;">
     <i class="fail-icon"></i><span>{{tipMessage}}</span>
 </div>
 
