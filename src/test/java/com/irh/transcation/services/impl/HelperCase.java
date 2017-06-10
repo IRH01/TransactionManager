@@ -59,7 +59,7 @@ class HelperCase{
      */
     static void restData() throws Exception{
         ScriptUtils.executeSqlScript(Context.getBean(DataSource.class).getConnection(),
-                new ClassPathResource("data_irh.sql"));
+                new ClassPathResource("data.sql"));
     }
 
 
