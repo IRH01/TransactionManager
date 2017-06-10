@@ -19,8 +19,8 @@ import javax.sql.DataSource;
  * @version 1.1
  */
 @Configuration
-@MapperScan("com.irh.transcation.services.impl.dao")
-@ComponentScan("com.irh.transcation.services")
+@MapperScan("com.irh.transaction.dao")
+@ComponentScan("com.irh.transaction.services")
 public class ConfigCase{
 
     @Bean
