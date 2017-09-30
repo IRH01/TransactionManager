@@ -30,7 +30,7 @@ public class AppConfig{
         DruidDataSource ds = new DruidDataSource();
         ds.setDriverClassName(Driver.class.getName());
         ds.setUsername("root");
-        ds.setPassword("root");
+        ds.setPassword("123456");
         ds.setMaxActive(20);
         ds.setUrl("jdbc:mysql://localhost:3306/hchctest?useUnicode=true&characterEncoding=UTF-8");
         return ds;

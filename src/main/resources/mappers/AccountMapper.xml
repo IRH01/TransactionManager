@@ -150,7 +150,7 @@
             LEFT JOIN t_headquarter h ON h.id = a.hq_id
         WHERE (a.credential_id = #{credentialId} OR a.fullname = #{credentialId}) AND h.code = #{hqCode}
     </select>
-    <select id="checkByCredentialIdAndHqId" resultType="Long">
+    <select id="checkByCredentialIdAndHqId" resultType="java.lang.Long">
         SELECT id
         FROM t_account
         WHERE credential_id = #{credentialId} AND hq_id = #{hqId}
